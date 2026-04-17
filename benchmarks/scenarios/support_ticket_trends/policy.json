@@ -1,0 +1,19 @@
+{
+  "version": 1,
+  "minimum_group_size": 5,
+  "require_aliases_for_entity_names": true,
+  "allow_exact_monetary_values": false,
+  "blocked_name_patterns": ["queue_name", "ticket", "message", "text", "salary"],
+  "sources": {
+    "support_metrics": {
+      "fields": {
+        "queue_name": { "risk": "high", "allow_release": false },
+        "avg_resolution_hours": { "risk": "moderate", "allow_release": false },
+        "escalations": { "risk": "moderate", "allow_release": false },
+        "csat_score": { "risk": "moderate", "allow_release": false },
+        "ticket_count": { "risk": "moderate", "allow_release": false },
+        "ticket_summary": { "risk": "highest", "allow_release": false }
+      }
+    }
+  }
+}

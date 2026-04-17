@@ -1,0 +1,7 @@
+branch_name,revenue,orders,returns_rate
+North,132000,420,0.03
+South,91000,360,0.05
+East,64000,290,0.08
+West,76000,315,0.06
+Central,69000,305,0.07
+Harbor,118000,395,0.04

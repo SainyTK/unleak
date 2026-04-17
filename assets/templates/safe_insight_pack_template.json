@@ -16,6 +16,10 @@
   ],
   "prompt_template": "Use only the sanitized fields. Rank the weakest entities, explain likely drivers, and recommend the next safe local query.",
   "lineage": {
+    "source_name": "source",
+    "source_paths": [
+      "data/source.csv"
+    ],
     "fields": {
       "entity_alias": {
         "ancestors": ["source.entity_name"],

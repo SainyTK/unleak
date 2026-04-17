@@ -1,0 +1,49 @@
+name: Feature request
+description: Suggest an improvement to packaging, hooks, examples, benchmarks, or docs.
+title: "[Feature]: "
+labels:
+  - enhancement
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this form for scoped requests. Tie the request back to safer adoption, clearer install flow, stronger validation, or better proof.
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem to solve
+      description: What user or maintainer pain does this address?
+      placeholder: New users cannot install the skill into Codex without manually copying files.
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed change
+      description: Describe the desired behavior or repo addition.
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: Note workarounds or competing approaches if you have them.
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options:
+        - Packaging and install surfaces
+        - Hook installer UX
+        - Examples and demos
+        - Benchmarks and evals
+        - CI and repo verification
+        - Documentation
+        - Other
+    validations:
+      required: true
+  - type: textarea
+    id: safety
+    attributes:
+      label: Safety considerations
+      description: Explain any effect on exposure risk, validator strength, or trust posture.

@@ -1,0 +1,125 @@
+{
+  "harness_version": 1,
+  "scenario_count": 2,
+  "schema_path": "evals/benchmark_result.schema.json",
+  "results": [
+    {
+      "scenario_id": "retail_branch",
+      "title": "Retail branch performance analysis",
+      "description": "Compares raw weak-branch ranking against a sanitized safe insight pack.",
+      "raw_fixture": "benchmarks/scenarios/retail_branch/raw_metrics.csv",
+      "policy": "benchmarks/scenarios/retail_branch/policy.json",
+      "expected": "benchmarks/scenarios/retail_branch/expected.json",
+      "snapshots": {
+        "safe_artifact": "benchmarks/results/retail_branch/safe_artifact.json",
+        "safe_lineage": "benchmarks/results/retail_branch/safe_lineage.json",
+        "safe_validation": "benchmarks/results/retail_branch/safe_validation.json",
+        "blocked_artifact": "benchmarks/results/retail_branch/blocked_artifact.json",
+        "blocked_lineage": "benchmarks/results/retail_branch/blocked_lineage.json",
+        "blocked_validation": "benchmarks/results/retail_branch/blocked_validation.json"
+      },
+      "metrics": {
+        "task_completion": {
+          "safe_release_valid": true,
+          "blocked_release_rejected": true
+        },
+        "utility": {
+          "focus": "bottom_3_entities",
+          "raw_bottom_entities": [
+            "East",
+            "Central",
+            "West"
+          ],
+          "safe_overlap_count": 3,
+          "safe_overlap_ratio": 1.0,
+          "safe_bottom_real_names": [
+            "East",
+            "Central",
+            "West"
+          ]
+        },
+        "leakage": {
+          "baseline_prompt_mode": "raw_extract_direct_to_model",
+          "baseline_exposed_high_risk_fields": [
+            "branch_name",
+            "revenue"
+          ],
+          "baseline_leakage_rate": 1.0,
+          "sanitized_release_ok": true,
+          "sanitized_violation_count": 0,
+          "blocked_release_ok": false,
+          "blocked_violation_count": 5,
+          "blocked_violation_samples": [
+            "derived field 'branch_name' matches a blocked name pattern",
+            "derived field 'branch_name' depends on blocked source 'branch_metrics.branch_name'",
+            "derived field 'exact_revenue' matches a blocked name pattern"
+          ]
+        },
+        "execution": {
+          "raw_row_count": 6,
+          "safe_entity_count": 6,
+          "minimum_group_size": 5
+        }
+      }
+    },
+    {
+      "scenario_id": "support_ticket_trends",
+      "title": "Support ticket trend analysis",
+      "description": "Measures whether queue prioritization survives sanitization when raw ticket text exists.",
+      "raw_fixture": "benchmarks/scenarios/support_ticket_trends/raw_metrics.csv",
+      "policy": "benchmarks/scenarios/support_ticket_trends/policy.json",
+      "expected": "benchmarks/scenarios/support_ticket_trends/expected.json",
+      "snapshots": {
+        "safe_artifact": "benchmarks/results/support_ticket_trends/safe_artifact.json",
+        "safe_lineage": "benchmarks/results/support_ticket_trends/safe_lineage.json",
+        "safe_validation": "benchmarks/results/support_ticket_trends/safe_validation.json",
+        "blocked_artifact": "benchmarks/results/support_ticket_trends/blocked_artifact.json",
+        "blocked_lineage": "benchmarks/results/support_ticket_trends/blocked_lineage.json",
+        "blocked_validation": "benchmarks/results/support_ticket_trends/blocked_validation.json"
+      },
+      "metrics": {
+        "task_completion": {
+          "safe_release_valid": true,
+          "blocked_release_rejected": true
+        },
+        "utility": {
+          "focus": "bottom_3_entities",
+          "raw_bottom_entities": [
+            "Billing Escalations",
+            "Returns Desk",
+            "API Support"
+          ],
+          "safe_overlap_count": 3,
+          "safe_overlap_ratio": 1.0,
+          "safe_bottom_real_names": [
+            "Billing Escalations",
+            "Returns Desk",
+            "API Support"
+          ]
+        },
+        "leakage": {
+          "baseline_prompt_mode": "raw_extract_direct_to_model",
+          "baseline_exposed_high_risk_fields": [
+            "queue_name",
+            "ticket_summary"
+          ],
+          "baseline_leakage_rate": 1.0,
+          "sanitized_release_ok": true,
+          "sanitized_violation_count": 0,
+          "blocked_release_ok": false,
+          "blocked_violation_count": 4,
+          "blocked_violation_samples": [
+            "derived field 'queue_name' matches a blocked name pattern",
+            "derived field 'queue_name' depends on blocked source 'support_metrics.queue_name'",
+            "derived field 'ticket_summary' matches a blocked name pattern"
+          ]
+        },
+        "execution": {
+          "raw_row_count": 6,
+          "safe_entity_count": 6,
+          "minimum_group_size": 5
+        }
+      }
+    }
+  ]
+}

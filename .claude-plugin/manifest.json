@@ -1,0 +1,20 @@
+{
+  "description": "Use this skill when users want privacy-preserving local analysis for coding agents over sensitive CSV files, SQLite databases, or project data. Keep raw data local, compute deterministic derived artifacts on the operator machine, and release only validated aggregates or other approved outputs to the model.",
+  "entrypoint": "SKILL.md",
+  "kind": "claude-skill-package",
+  "name": "unleak",
+  "primary_targets": [
+    "codex",
+    "claude"
+  ],
+  "product_wedge": "Privacy-preserving local analysis for coding agents: compute on raw data locally, release only validated derived artifacts to the model.",
+  "rules": [
+    "rules/unleak-activate.md"
+  ],
+  "schema_version": 1,
+  "secondary_targets": [
+    "gemini"
+  ],
+  "target_users": "Teams using coding agents on sensitive local CSV, SQLite, and project data.",
+  "version": "0.1.0"
+}

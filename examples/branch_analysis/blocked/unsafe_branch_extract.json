@@ -1,0 +1,27 @@
+{
+  "artifact_path": "examples/branch_analysis/blocked/unsafe_branch_extract.json",
+  "task": "Deliberately unsafe example that leaks exact branch data.",
+  "entities": [
+    {
+      "branch_name": "North",
+      "revenue": 120000.0,
+      "returns_rate": 0.03
+    },
+    {
+      "branch_name": "South",
+      "revenue": 90000.0,
+      "returns_rate": 0.05
+    },
+    {
+      "branch_name": "East",
+      "revenue": 64000.0,
+      "returns_rate": 0.08
+    },
+    {
+      "branch_name": "West",
+      "revenue": 70000.0,
+      "returns_rate": 0.04
+    }
+  ],
+  "analyst_notes": "North branch revenue is strongest while East is underperforming badly."
+}

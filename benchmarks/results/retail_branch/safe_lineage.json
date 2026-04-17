@@ -1,9 +1,5 @@
 {
-  "artifact_path": "examples/branch_analysis/derived/safe_insight_pack.json",
-  "source_name": "branch_metrics",
-  "source_paths": [
-    "examples/branch_analysis/raw_branch_metrics.csv"
-  ],
+  "artifact_path": "benchmarks/results/retail_branch/safe_artifact.json",
   "fields": {
     "branch_alias": {
       "ancestors": [
@@ -30,14 +26,6 @@
         "bucket"
       ]
     },
-    "returns_band": {
-      "ancestors": [
-        "branch_metrics.returns_rate"
-      ],
-      "transforms": [
-        "band"
-      ]
-    },
     "trend_percentile": {
       "ancestors": [
         "branch_metrics.revenue"
@@ -45,21 +33,14 @@
       "transforms": [
         "percentile_rank"
       ]
-    },
-    "follow_up_action": {
-      "ancestors": [
-        "branch_metrics.revenue",
-        "branch_metrics.returns_rate"
-      ],
-      "transforms": [
-        "bucket"
-      ]
     }
   },
   "group_sizes": {
-    "BR-001": 420,
-    "BR-002": 380,
-    "BR-003": 290,
-    "BR-004": 310
+    "RB-001": 420,
+    "RB-002": 360,
+    "RB-003": 290,
+    "RB-004": 315,
+    "RB-005": 305,
+    "RB-006": 395
   }
 }

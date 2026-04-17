@@ -1,0 +1,29 @@
+{
+  "artifact_path": "examples/branch_analysis/blocked/unsafe_branch_extract.json",
+  "fields": {
+    "branch_name": {
+      "ancestors": [
+        "branch_metrics.branch_name"
+      ],
+      "transforms": []
+    },
+    "revenue": {
+      "ancestors": [
+        "branch_metrics.revenue"
+      ],
+      "transforms": []
+    },
+    "returns_rate": {
+      "ancestors": [
+        "branch_metrics.returns_rate"
+      ],
+      "transforms": []
+    }
+  },
+  "group_sizes": {
+    "North": 1,
+    "South": 1,
+    "East": 1,
+    "West": 1
+  }
+}

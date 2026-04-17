@@ -1,0 +1,4 @@
+{
+  "raw_bottom_entities": ["East", "Central", "West"],
+  "baseline_exposed_high_risk_fields": ["branch_name", "revenue"]
+}

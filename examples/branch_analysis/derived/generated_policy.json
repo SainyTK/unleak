@@ -1,0 +1,52 @@
+{
+  "version": 1,
+  "minimum_group_size": 5,
+  "require_aliases_for_entity_names": true,
+  "blocked_name_patterns": [
+    "name",
+    "email",
+    "phone",
+    "address",
+    "revenue",
+    "profit",
+    "salary",
+    "price"
+  ],
+  "sources": {
+    "branch_metrics": {
+      "fields": {
+        "branch_name": {
+          "risk": "high",
+          "allow_release": false,
+          "allowed_transforms": [
+            "alias"
+          ]
+        },
+        "orders": {
+          "risk": "moderate",
+          "allow_release": false
+        },
+        "returns_rate": {
+          "risk": "moderate",
+          "allow_release": false
+        },
+        "revenue": {
+          "risk": "high",
+          "allow_release": false,
+          "allowed_transforms": [
+            "bucket",
+            "band",
+            "percentile_rank",
+            "median_relative_index"
+          ]
+        }
+      }
+    }
+  },
+  "setup_questions": [
+    "Which inferred highest-risk fields are truly forbidden from model exposure?",
+    "Do these high-risk business fields need stricter treatment: raw_branch_metrics.csv:branch_name, raw_branch_metrics.csv:revenue?",
+    "What is the minimum acceptable aggregation level for model-visible outputs?",
+    "Are aliases acceptable for entities such as customers, branches, vendors, or employees?"
+  ]
+}

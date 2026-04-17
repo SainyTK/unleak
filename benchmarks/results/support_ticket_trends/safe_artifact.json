@@ -1,0 +1,120 @@
+{
+  "artifact_path": "benchmarks/results/support_ticket_trends/safe_artifact.json",
+  "scenario_id": "support_ticket_trends",
+  "task": "Prioritize struggling support queues without exposing queue names or raw ticket text.",
+  "schema": {
+    "queue_alias": "stable pseudonym for local join-back",
+    "sla_index": "median-relative average resolution index where 100 is the median queue",
+    "escalation_band": [
+      "stable",
+      "elevated",
+      "critical"
+    ],
+    "csat_percentile": "queue percentile based on csat_score",
+    "attention_level": [
+      "low",
+      "watch",
+      "high"
+    ]
+  },
+  "entities": [
+    {
+      "queue_alias": "SQ-001",
+      "sla_index": 131.0,
+      "escalation_band": "critical",
+      "csat_percentile": 0.0,
+      "attention_level": "high"
+    },
+    {
+      "queue_alias": "SQ-002",
+      "sla_index": 48.3,
+      "escalation_band": "stable",
+      "csat_percentile": 1.0,
+      "attention_level": "low"
+    },
+    {
+      "queue_alias": "SQ-003",
+      "sla_index": 110.3,
+      "escalation_band": "elevated",
+      "csat_percentile": 0.4,
+      "attention_level": "watch"
+    },
+    {
+      "queue_alias": "SQ-004",
+      "sla_index": 69.0,
+      "escalation_band": "stable",
+      "csat_percentile": 0.8,
+      "attention_level": "low"
+    },
+    {
+      "queue_alias": "SQ-005",
+      "sla_index": 89.7,
+      "escalation_band": "stable",
+      "csat_percentile": 0.6,
+      "attention_level": "watch"
+    },
+    {
+      "queue_alias": "SQ-006",
+      "sla_index": 124.1,
+      "escalation_band": "elevated",
+      "csat_percentile": 0.2,
+      "attention_level": "high"
+    }
+  ],
+  "prompt_template": "Use only queue_alias, sla_index, escalation_band, csat_percentile, and attention_level.",
+  "lineage": {
+    "artifact_path": "benchmarks/results/support_ticket_trends/safe_artifact.json",
+    "fields": {
+      "queue_alias": {
+        "ancestors": [
+          "support_metrics.queue_name"
+        ],
+        "transforms": [
+          "alias"
+        ]
+      },
+      "sla_index": {
+        "ancestors": [
+          "support_metrics.avg_resolution_hours"
+        ],
+        "transforms": [
+          "median_relative_index"
+        ]
+      },
+      "escalation_band": {
+        "ancestors": [
+          "support_metrics.escalations"
+        ],
+        "transforms": [
+          "bucket"
+        ]
+      },
+      "csat_percentile": {
+        "ancestors": [
+          "support_metrics.csat_score"
+        ],
+        "transforms": [
+          "percentile_rank"
+        ]
+      },
+      "attention_level": {
+        "ancestors": [
+          "support_metrics.avg_resolution_hours",
+          "support_metrics.escalations",
+          "support_metrics.csat_score"
+        ],
+        "transforms": [
+          "bucket"
+        ]
+      }
+    },
+    "group_sizes": {
+      "SQ-001": 64,
+      "SQ-002": 72,
+      "SQ-003": 58,
+      "SQ-004": 66,
+      "SQ-005": 61,
+      "SQ-006": 59
+    }
+  }
+}

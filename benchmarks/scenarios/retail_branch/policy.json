@@ -1,0 +1,17 @@
+{
+  "version": 1,
+  "minimum_group_size": 5,
+  "require_aliases_for_entity_names": true,
+  "allow_exact_monetary_values": false,
+  "blocked_name_patterns": ["branch_name", "revenue", "profit", "salary"],
+  "sources": {
+    "branch_metrics": {
+      "fields": {
+        "branch_name": { "risk": "high", "allow_release": false },
+        "revenue": { "risk": "high", "allow_release": false },
+        "orders": { "risk": "moderate", "allow_release": false },
+        "returns_rate": { "risk": "moderate", "allow_release": false }
+      }
+    }
+  }
+}

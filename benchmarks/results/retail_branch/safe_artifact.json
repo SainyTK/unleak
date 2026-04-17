@@ -1,0 +1,100 @@
+{
+  "artifact_path": "benchmarks/results/retail_branch/safe_artifact.json",
+  "scenario_id": "retail_branch",
+  "task": "Rank weak retail branches without exposing names or exact revenue.",
+  "schema": {
+    "branch_alias": "stable pseudonym for local join-back",
+    "health_index": "median-relative revenue index where 100 is the median branch",
+    "risk_band": [
+      "low",
+      "watch",
+      "high"
+    ],
+    "trend_percentile": "revenue percentile across branches"
+  },
+  "entities": [
+    {
+      "branch_alias": "RB-001",
+      "health_index": 158.1,
+      "risk_band": "low",
+      "trend_percentile": 1.0
+    },
+    {
+      "branch_alias": "RB-002",
+      "health_index": 109.0,
+      "risk_band": "low",
+      "trend_percentile": 0.6
+    },
+    {
+      "branch_alias": "RB-003",
+      "health_index": 76.6,
+      "risk_band": "high",
+      "trend_percentile": 0.0
+    },
+    {
+      "branch_alias": "RB-004",
+      "health_index": 91.0,
+      "risk_band": "watch",
+      "trend_percentile": 0.4
+    },
+    {
+      "branch_alias": "RB-005",
+      "health_index": 82.6,
+      "risk_band": "high",
+      "trend_percentile": 0.2
+    },
+    {
+      "branch_alias": "RB-006",
+      "health_index": 141.3,
+      "risk_band": "low",
+      "trend_percentile": 0.8
+    }
+  ],
+  "prompt_template": "Use only branch_alias, health_index, risk_band, and trend_percentile.",
+  "lineage": {
+    "artifact_path": "benchmarks/results/retail_branch/safe_artifact.json",
+    "fields": {
+      "branch_alias": {
+        "ancestors": [
+          "branch_metrics.branch_name"
+        ],
+        "transforms": [
+          "alias"
+        ]
+      },
+      "health_index": {
+        "ancestors": [
+          "branch_metrics.revenue"
+        ],
+        "transforms": [
+          "median_relative_index"
+        ]
+      },
+      "risk_band": {
+        "ancestors": [
+          "branch_metrics.revenue",
+          "branch_metrics.returns_rate"
+        ],
+        "transforms": [
+          "bucket"
+        ]
+      },
+      "trend_percentile": {
+        "ancestors": [
+          "branch_metrics.revenue"
+        ],
+        "transforms": [
+          "percentile_rank"
+        ]
+      }
+    },
+    "group_sizes": {
+      "RB-001": 420,
+      "RB-002": 360,
+      "RB-003": 290,
+      "RB-004": 315,
+      "RB-005": 305,
+      "RB-006": 395
+    }
+  }
+}

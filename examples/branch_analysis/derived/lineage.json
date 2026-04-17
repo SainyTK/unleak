@@ -1,0 +1,44 @@
+{
+  "artifact_path": "examples/branch_analysis/derived/safe_insight_pack.json",
+  "fields": {
+    "branch_alias": {
+      "ancestors": [
+        "branch_metrics.branch_name"
+      ],
+      "transforms": [
+        "alias"
+      ]
+    },
+    "health_index": {
+      "ancestors": [
+        "branch_metrics.revenue"
+      ],
+      "transforms": [
+        "median_relative_index"
+      ]
+    },
+    "risk_band": {
+      "ancestors": [
+        "branch_metrics.revenue",
+        "branch_metrics.returns_rate"
+      ],
+      "transforms": [
+        "bucket"
+      ]
+    },
+    "trend_percentile": {
+      "ancestors": [
+        "branch_metrics.revenue"
+      ],
+      "transforms": [
+        "percentile_rank"
+      ]
+    }
+  },
+  "group_sizes": {
+    "BR-001": 420,
+    "BR-002": 380,
+    "BR-003": 290,
+    "BR-004": 310
+  }
+}

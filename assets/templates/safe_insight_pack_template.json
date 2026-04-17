@@ -1,0 +1,41 @@
+{
+  "task": "Describe the business question without exposing raw sensitive fields.",
+  "schema": {
+    "entity_alias": "stable pseudonym used for local join-back",
+    "health_index": "baseline-relative score where median entity = 100",
+    "risk_band": ["low", "watch", "high"],
+    "trend_percentile": "rank percentile across entities"
+  },
+  "entities": [
+    {
+      "entity_alias": "ENT-0001",
+      "health_index": 81.4,
+      "risk_band": "high",
+      "trend_percentile": 0.12
+    }
+  ],
+  "prompt_template": "Use only the sanitized fields. Rank the weakest entities, explain likely drivers, and recommend the next safe local query.",
+  "lineage": {
+    "fields": {
+      "entity_alias": {
+        "ancestors": ["source.entity_name"],
+        "transforms": ["alias"]
+      },
+      "health_index": {
+        "ancestors": ["source.metric_value"],
+        "transforms": ["median_relative_index"]
+      },
+      "risk_band": {
+        "ancestors": ["source.metric_value"],
+        "transforms": ["bucket"]
+      },
+      "trend_percentile": {
+        "ancestors": ["source.metric_value"],
+        "transforms": ["percentile_rank"]
+      }
+    },
+    "group_sizes": {
+      "ENT-0001": 12
+    }
+  }
+}

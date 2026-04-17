@@ -1,0 +1,12 @@
+{
+  "artifact_path": "derived/branch_summary.json",
+  "fields": {
+    "sales_amount": {
+      "ancestors": ["sales.revenue"],
+      "transforms": []
+    }
+  },
+  "group_sizes": {
+    "B01": 12
+  }
+}

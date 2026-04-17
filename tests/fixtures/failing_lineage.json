@@ -1,0 +1,10 @@
+{
+  "artifact_path": "derived/branch_summary.json",
+  "fields": {
+    "branch_name": ["sales.branch_name"],
+    "revenue": ["sales.revenue"]
+  },
+  "group_sizes": {
+    "Downtown": 2
+  }
+}

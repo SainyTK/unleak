@@ -1,0 +1,8 @@
+[project]
+name = "unleak-skill"
+version = "0.1.0"
+description = "Deterministic guards for privacy-preserving coding-agent data analysis"
+requires-python = ">=3.10"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

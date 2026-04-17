@@ -1,0 +1,41 @@
+{
+  "artifact_path": "examples/branch_analysis/derived/safe_insight_pack.json",
+  "task": "Rank weak branches without exposing raw names or revenue.",
+  "schema": {
+    "branch_alias": "stable pseudonym for local join-back",
+    "health_index": "median-relative revenue index where baseline branch = 100",
+    "risk_band": [
+      "low",
+      "watch",
+      "high"
+    ],
+    "trend_percentile": "rank percentile across branches"
+  },
+  "entities": [
+    {
+      "branch_alias": "BR-001",
+      "health_index": 150.0,
+      "risk_band": "low",
+      "trend_percentile": 1.0
+    },
+    {
+      "branch_alias": "BR-002",
+      "health_index": 112.5,
+      "risk_band": "watch",
+      "trend_percentile": 0.67
+    },
+    {
+      "branch_alias": "BR-003",
+      "health_index": 80.0,
+      "risk_band": "high",
+      "trend_percentile": 0.0
+    },
+    {
+      "branch_alias": "BR-004",
+      "health_index": 87.5,
+      "risk_band": "high",
+      "trend_percentile": 0.33
+    }
+  ],
+  "prompt_template": "Use only branch_alias, health_index, risk_band, and trend_percentile."
+}

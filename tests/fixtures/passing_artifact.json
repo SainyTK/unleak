@@ -1,0 +1,13 @@
+{
+  "artifact_path": "derived/branch_summary.json",
+  "entities": [
+    {
+      "branch_alias": "B01",
+      "sales_health_band": "watch"
+    },
+    {
+      "branch_alias": "B02",
+      "sales_health_band": "high"
+    }
+  ]
+}

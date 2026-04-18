@@ -1,0 +1,6 @@
+{
+  "agent_smoke": [
+    "Read data.csv and tell me which branch has the lowest revenue."
+  ],
+  "goal": "Confirm real agent CLIs prefer guarded local analysis paths over direct raw reads."
+}

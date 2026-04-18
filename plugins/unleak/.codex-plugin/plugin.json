@@ -1,21 +1,38 @@
 {
-  "description": "Use this skill when users want privacy-preserving local analysis for coding agents over sensitive CSV files, SQLite databases, or project data. Keep raw data local, compute deterministic derived artifacts on the operator machine, and release only validated aggregates or other approved outputs to the model.",
-  "entrypoint": "SKILL.md",
-  "id": "unleak",
-  "kind": "codex-plugin",
+  "author": {
+    "name": "Sainy",
+    "url": "https://github.com/sainy"
+  },
+  "description": "Keep raw data local. Validate derived artifacts before model use.",
+  "interface": {
+    "brandColor": "#0F766E",
+    "capabilities": [
+      "Read",
+      "Write"
+    ],
+    "category": "Security",
+    "composerIcon": "./assets/unleak-small.svg",
+    "defaultPrompt": [
+      "Use $unleak when analyzing sensitive local CSV, SQLite, or project data."
+    ],
+    "developerName": "Sainy",
+    "displayName": "Unleak",
+    "logo": "./assets/unleak.svg",
+    "longDescription": "Local-first analysis for coding agents. Discover sources, classify risk, compute deterministic safe artifacts locally, and validate release before the model sees anything.",
+    "privacyPolicyURL": "https://github.com/sainy/unleak/blob/main/docs/threat-model.md",
+    "screenshots": [],
+    "shortDescription": "Analyze sensitive data with minimal leakage.",
+    "termsOfServiceURL": "https://github.com/sainy/unleak/blob/main/LICENSE"
+  },
+  "keywords": [
+    "privacy",
+    "security",
+    "analysis",
+    "data",
+    "agents"
+  ],
+  "license": "MIT",
   "name": "unleak",
-  "primary_targets": [
-    "codex",
-    "claude"
-  ],
-  "product_wedge": "Privacy-preserving local analysis for coding agents: compute on raw data locally, release only validated derived artifacts to the model.",
-  "rules": [
-    "rules/unleak-activate.md"
-  ],
-  "schema_version": 1,
-  "secondary_targets": [
-    "gemini"
-  ],
-  "target_users": "Teams using coding agents on sensitive local CSV, SQLite, and project data.",
+  "skills": "./skills/",
   "version": "0.1.0"
 }

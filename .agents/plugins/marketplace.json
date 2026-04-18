@@ -1,0 +1,20 @@
+{
+  "interface": {
+    "displayName": "Unleak Repo"
+  },
+  "name": "unleak-repo",
+  "plugins": [
+    {
+      "category": "Security",
+      "name": "unleak",
+      "policy": {
+        "authentication": "ON_INSTALL",
+        "installation": "AVAILABLE"
+      },
+      "source": {
+        "path": "./plugins/unleak",
+        "source": "local"
+      }
+    }
+  ]
+}

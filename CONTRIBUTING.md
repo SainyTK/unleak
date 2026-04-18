@@ -22,7 +22,7 @@ If the change would alter validation policy, release rules, or risk classificati
 3. Install dev dependencies as your environment requires.
 4. Run tests with `pytest -q`.
 
-The canonical skill now lives at `skills/unleak/SKILL.md`. Treat the root `SKILL.md`, `.claude-plugin/`, and `plugins/unleak/` copies as generated outputs maintained by `scripts/sync_packaging.py`.
+The only `SKILL.md` source of truth is `skills/unleak/SKILL.md`. Packaging manifests and tests should point to that file instead of maintaining generated `SKILL.md` copies elsewhere.
 
 ## Working norms
 

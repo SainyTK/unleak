@@ -1,0 +1,17 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "description": "Privacy-preserving local analysis for Claude Code.",
+  "name": "unleak",
+  "owner": {
+    "name": "Sainy",
+    "url": "https://github.com/sainy"
+  },
+  "plugins": [
+    {
+      "category": "security",
+      "description": "Keep raw data local. Release only validated derived artifacts.",
+      "name": "unleak",
+      "source": "./"
+    }
+  ]
+}

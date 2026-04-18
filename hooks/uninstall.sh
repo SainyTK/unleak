@@ -3,13 +3,14 @@ set -euo pipefail
 
 usage() {
   cat <<'EOF'
-Remove repo-local Claude Code hooks for unleak.
+Remove standalone Claude Code hooks for unleak.
 
 Usage:
   ./hooks/uninstall.sh [--settings-file PATH]
 
 Defaults:
   Removes hook entries from .claude/settings.local.json in the current repo.
+  This only affects the standalone hook install path.
 
 Options:
   --settings-file PATH  Remove hooks from a different Claude settings file.
@@ -80,6 +81,8 @@ if hooks is None:
 if not isinstance(hooks, dict):
     raise SystemExit(f"Refusing to edit settings with non-object hooks in {settings_path}")
 
+changes_made = False
+
 for event_name in list(hooks):
     entries = hooks.get(event_name)
     if not isinstance(entries, list):
@@ -106,6 +109,9 @@ for event_name in list(hooks):
             )
         ]
 
+        if len(kept_hooks) != len(hook_list):
+            changes_made = True
+
         if kept_hooks:
             updated_entry = dict(entry)
             updated_entry["hooks"] = kept_hooks
@@ -115,10 +121,12 @@ for event_name in list(hooks):
         hooks[event_name] = kept_entries
     else:
         hooks.pop(event_name, None)
+        changes_made = True
 
 if not hooks:
     data.pop("hooks", None)
+    changes_made = True
 
 settings_path.write_text(json.dumps(data, indent=2) + "\n", encoding="utf-8")
-print(f"Removed unleak hooks from {settings_path}")
+print(f"{'Removed' if changes_made else 'No'} standalone unleak hooks in {settings_path}")
 PY

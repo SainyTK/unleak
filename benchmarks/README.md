@@ -1,6 +1,6 @@
 # Benchmarks
 
-This package provides deterministic `unleak` benchmark scenarios grounded in the product plan.
+This package provides deterministic `unleak` benchmark scenarios grounded in the product plan, plus a small live-agent smoke path for real CLI checks.
 
 ## Included scenarios
 
@@ -18,10 +18,34 @@ Each scenario includes:
 ## Run
 
 ```bash
-rtk python benchmarks/run_benchmarks.py
+python benchmarks/run_benchmarks.py
 ```
 
 The harness writes reproducible outputs to `benchmarks/results/` and a summary snapshot to `benchmarks/results/benchmark_summary.json`.
+
+## Live Agent Smoke Test
+
+Run the deterministic harness plus real CLI smoke checks against [`benchmarks/smoke_agent_sample/`](/Users/sainy/Documents/projects/personal/unleak/benchmarks/smoke_agent_sample):
+
+```bash
+python benchmarks/run_benchmarks.py --agent-smoke
+```
+
+To target one CLI only:
+
+```bash
+python benchmarks/run_benchmarks.py --agent-smoke --agent claude
+python benchmarks/run_benchmarks.py --agent-smoke --agent codex
+```
+
+These smoke results are intentionally small and non-deterministic. They verify whether the actual agent CLI tries a direct raw read and whether the current `unleak` integration stops it.
+
+If you want the `caveman`-style top-level eval entrypoint instead of calling the benchmark harness directly, use:
+
+```bash
+python3 evals/llm_run.py --agent claude --agent codex
+python3 evals/measure.py
+```
 
 ## Output schema
 

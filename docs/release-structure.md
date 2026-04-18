@@ -18,6 +18,8 @@ Each release should produce:
 - tagged source release
 - concise release notes
 - install surface summary
+- mirrored rule and skill copies refreshed from canonical sources
+- `unleak.skill` archive refreshed from `skills/unleak/SKILL.md`
 - benchmark snapshot references
 - migration notes if canonical paths or generated copies move
 
@@ -32,21 +34,24 @@ Each release should produce:
 
 Target the first serious release as `v0.1.0` with:
 
-- canonical skill plus generated Codex and Claude install surfaces
+- canonical skill plus generated Codex, Claude, Cursor, Windsurf, Cline, and Copilot install surfaces
 - hook installer and uninstall flow
 - branch-analysis passing and blocked demo paths
 - benchmark harness with committed retail and support scenarios
+- eval harness with Claude Code and Codex live smoke snapshots
 - CI plus repo verification
 - public README and deeper docs
 
 ## Release checklist
 
 1. Confirm canonical skill and generated copies are in sync.
-2. Run tests and repo verification checks.
-3. Validate the flagship example end to end.
-4. Confirm benchmark snapshots are current or intentionally unchanged.
-5. Draft release notes with install and migration guidance.
-6. Tag the release and attach a concise summary of supported install targets.
+2. Confirm `.claude-plugin/`, `.codex/`, `.cursor/`, `.windsurf/`, `.clinerules/`, and `.github/copilot-instructions.md` were generated from canonical sources.
+3. Confirm `unleak.skill` opens and contains `unleak/SKILL.md`.
+4. Run tests and repo verification checks.
+5. Validate the flagship example end to end.
+6. Confirm benchmark snapshots and eval snapshots are current or intentionally unchanged.
+7. Draft release notes with install and migration guidance.
+8. Tag the release and attach a concise summary of supported install targets.
 
 ## Relationship to README
 

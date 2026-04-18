@@ -1,0 +1,2 @@
+description = "Run the unleak setup workflow"
+prompt = "Run unleak setup for this repo. Discover candidate sources, infer risky fields, ask only the minimum policy questions, and write or tighten local policy before analysis."

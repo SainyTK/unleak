@@ -10,6 +10,7 @@ import os
 import statistics
 import subprocess
 import sys
+import zipfile
 from pathlib import Path
 
 
@@ -29,7 +30,7 @@ if str(SCRIPT_DIR) not in sys.path:
     sys.path.insert(0, str(SCRIPT_DIR))
 
 from validate_release import detect_violations, load_json  # noqa: E402
-from sync_packaging import build_outputs  # noqa: E402
+from sync_packaging import build_outputs, build_skill_zip_bytes  # noqa: E402
 
 
 def _load_rows() -> list[dict[str, str]]:
@@ -249,9 +250,29 @@ def verify_packaging_sync() -> list[str]:
         if not path.exists():
             issues.append(f"generated packaging file is missing: {path.relative_to(ROOT)}")
             continue
+        if path.name == "unleak.skill":
+            if path.read_bytes() != build_skill_zip_bytes():
+                issues.append(f"generated packaging file drifted: {path.relative_to(ROOT)}")
+            continue
         if path.read_text(encoding="utf-8") != expected:
             issues.append(f"generated packaging file drifted: {path.relative_to(ROOT)}")
 
+    return issues
+
+
+def verify_skill_archive() -> list[str]:
+    issues: list[str] = []
+    archive_path = ROOT / "unleak.skill"
+    if not archive_path.exists():
+        return ["generated packaging file is missing: unleak.skill"]
+    with zipfile.ZipFile(archive_path) as archive:
+        if "unleak/SKILL.md" not in archive.namelist():
+            issues.append("unleak.skill is missing unleak/SKILL.md")
+        else:
+            payload = archive.read("unleak/SKILL.md").decode("utf-8")
+            source = (ROOT / "skills" / "unleak" / "SKILL.md").read_text(encoding="utf-8")
+            if payload != source:
+                issues.append("unleak.skill payload drifted from skills/unleak/SKILL.md")
     return issues
 
 
@@ -280,6 +301,7 @@ def verify_repo() -> list[str]:
     issues.extend(verify_branch_analysis_example())
     issues.extend(verify_optional_json_payloads())
     issues.extend(verify_packaging_sync())
+    issues.extend(verify_skill_archive())
     issues.extend(verify_optional_hook_layout())
     return issues
 

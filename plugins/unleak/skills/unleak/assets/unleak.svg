@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="Unleak logo">
+  <defs>
+    <linearGradient id="g" x1="0%" x2="100%" y1="0%" y2="100%">
+      <stop offset="0%" stop-color="#2dd4bf"/>
+      <stop offset="100%" stop-color="#15803d"/>
+    </linearGradient>
+  </defs>
+  <rect width="128" height="128" rx="28" fill="#07161c"/>
+  <path fill="url(#g)" d="M64 18c-17 0-31 14-31 31v18c0 17 14 31 31 31s31-14 31-31V49C95 32 81 18 64 18Zm0 16c8 0 15 7 15 15v18c0 8-7 15-15 15s-15-7-15-15V49c0-8 7-15 15-15Z"/>
+  <path fill="#d1fae5" d="M64 55a9 9 0 1 1 0 18 9 9 0 0 1 0-18Zm-22 49h44v10H42z"/>
+</svg>

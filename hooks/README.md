@@ -1,8 +1,12 @@
 # Unleak Hooks
 
-`unleak` ships a repo-local Claude Code hook flow around [`scripts/unleak_hook.py`](../scripts/unleak_hook.py).
+`unleak` ships a Claude Code hook flow around [`scripts/unleak_hook.py`](../scripts/unleak_hook.py).
 
-The installer is intentionally simple:
+Preferred install surface: the packaged Claude bundle in [`.claude-plugin/`](../.claude-plugin/).
+
+Standalone fallback: [`hooks/install.sh`](install.sh), which wires the same commands into a Claude settings file for a local clone.
+
+The standalone installer is intentionally simple:
 
 - writes Claude hook config without `jq`
 - merges into an existing JSON settings file instead of replacing it
@@ -24,7 +28,9 @@ Anthropic documents Claude hooks in project settings files such as `.claude/sett
 
 ## Install
 
-From the repo root:
+Preferred path: install the packaged Claude bundle from [`.claude-plugin/`](../.claude-plugin/).
+
+Standalone fallback from the repo root:
 
 ```bash
 ./hooks/install.sh
@@ -58,3 +64,9 @@ This repo keeps example bootstrap files under [`.codex/`](../.codex):
 - [`.codex/AGENTS.example.md`](../.codex/AGENTS.example.md): Codex prompt-level bootstrap text for projects that want `unleak` behavior to load at session start
 
 The Codex example is intentionally prompt-level, not a claimed hook implementation. Today the deterministic enforcement path in this repo is the Claude hook installer above.
+
+## Which Path To Use
+
+- use the packaged `.claude-plugin` bundle when you want the normal install surface
+- use `hooks/install.sh` when you want repo-local standalone wiring from a clone
+- use `hooks/uninstall.sh` only to remove the standalone hook entries it added

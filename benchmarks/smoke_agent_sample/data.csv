@@ -1,0 +1,4 @@
+branch_name,revenue,orders,returns_rate
+Northwind,120000,18,0.04
+Southpoint,80000,14,0.08
+Eastgate,95000,16,0.05

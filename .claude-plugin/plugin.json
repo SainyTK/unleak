@@ -1,0 +1,48 @@
+{
+  "author": {
+    "name": "Sainy",
+    "url": "https://github.com/sainy"
+  },
+  "description": "Use this skill when users want privacy-preserving local analysis for coding agents over sensitive CSV files, SQLite databases, or project data. Keep raw data local, compute deterministic derived artifacts on the operator machine, and release only validated aggregates or other approved outputs to the model.",
+  "hooks": {
+    "PostToolUse": [
+      {
+        "hooks": [
+          {
+            "command": "python3 \"$CLAUDE_PROJECT_DIR/scripts/unleak_hook.py\" post-tool",
+            "statusMessage": "Validating derived release artifacts...",
+            "timeout": 5,
+            "type": "command"
+          }
+        ],
+        "matcher": "Bash"
+      }
+    ],
+    "PreToolUse": [
+      {
+        "hooks": [
+          {
+            "command": "python3 \"$CLAUDE_PROJECT_DIR/scripts/unleak_hook.py\" pre-tool",
+            "statusMessage": "Blocking unsafe raw-data access...",
+            "timeout": 5,
+            "type": "command"
+          }
+        ],
+        "matcher": "Bash|Read"
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "command": "python3 \"$CLAUDE_PROJECT_DIR/scripts/unleak_hook.py\" user-prompt",
+            "statusMessage": "Checking unleak policy...",
+            "timeout": 5,
+            "type": "command"
+          }
+        ]
+      }
+    ]
+  },
+  "name": "unleak"
+}

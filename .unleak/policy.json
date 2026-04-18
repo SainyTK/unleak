@@ -1,0 +1,14 @@
+{
+  "version": 1,
+  "minimum_group_size": 5,
+  "require_aliases_for_entity_names": true,
+  "blocked_name_patterns": ["name", "email", "phone", "address", "revenue", "profit", "salary", "price"],
+  "sources": {
+    "smoke_agent_sample": {
+      "fields": {
+        "branch": {"risk": "low", "allow_release": true},
+        "revenue": {"risk": "moderate", "allow_release": false, "allowed_transforms": ["sum", "rank", "min", "max"]}
+      }
+    }
+  }
+}

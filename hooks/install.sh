@@ -3,13 +3,14 @@ set -euo pipefail
 
 usage() {
   cat <<'EOF'
-Install repo-local Claude Code hooks for unleak.
+Install standalone Claude Code hooks for unleak.
 
 Usage:
   ./hooks/install.sh [--settings-file PATH]
 
 Defaults:
   Writes to .claude/settings.local.json in the current repo.
+  This is the fallback path when you are not installing the packaged Claude bundle.
 
 Options:
   --settings-file PATH  Write to a different Claude settings file.
@@ -90,6 +91,8 @@ hooks = data.setdefault("hooks", {})
 if not isinstance(hooks, dict):
     raise SystemExit(f"Refusing to edit settings with non-object hooks in {settings_path}")
 
+changes_made = False
+
 for event_name, matcher, command in desired_hooks:
     entries = hooks.setdefault(event_name, [])
     if not isinstance(entries, list):
@@ -110,6 +113,7 @@ for event_name, matcher, command in desired_hooks:
         if matcher is not None:
             target_entry["matcher"] = matcher
         entries.append(target_entry)
+        changes_made = True
 
     hook_list = target_entry.setdefault("hooks", [])
     if not isinstance(hook_list, list):
@@ -123,9 +127,12 @@ for event_name, matcher, command in desired_hooks:
     )
     if not already_present:
         hook_list.append({"type": "command", "command": command})
+        changes_made = True
 
 settings_path.write_text(json.dumps(data, indent=2) + "\n", encoding="utf-8")
+print("changed" if changes_made else "unchanged")
 PY
 
-echo "Installed unleak hooks into ${settings_file}"
-echo "Inspect them with Claude Code /hooks or by opening ${settings_file}"
+echo "Standalone unleak hook install complete for ${settings_file}"
+echo "This path is meant for repo-local Claude setup when you are not using the packaged .claude-plugin bundle."
+echo "Inspect the registered hooks with Claude Code /hooks or by opening ${settings_file}"

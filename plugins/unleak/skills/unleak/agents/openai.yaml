@@ -1,0 +1,6 @@
+interface:
+  display_name: "Unleak"
+  short_description: "Analyze sensitive local data with minimal leakage."
+  icon_small: "./assets/unleak-small.svg"
+  icon_large: "./assets/unleak.svg"
+  default_prompt: "Use $unleak for sensitive local CSV, SQLite, or project data. Keep raw rows local and validate derived release artifacts first."

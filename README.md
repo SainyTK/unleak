@@ -126,7 +126,7 @@ The agent must not use raw database CLIs after setup, including `psql`, `rtk psq
 - `masked`: use for personal or identifying data where partial traceability is useful. The agent may select the column directly, but output is masked. Examples: email, phone number, account number, customer name.
 - `hashed`: use for sensitive identifiers that need stable pseudonymous display, comparison, or grouped counts, but not raw exposure. Output is transformed with local HMAC. Examples: customer ID, member ID, transaction ID.
 - `joinable`: use for keys needed to connect tables without exposing raw values. These columns may be used for equality joins, grouped counts, and direct pseudonymous selection, but not for filtering, sorting, or calculations. Examples: foreign keys, internal account IDs.
-- `hidden`: use when the agent does not need the value. Hidden columns must not be referenced. Examples: passwords, API keys, access tokens, private notes, sensitive free text.
+- `hidden`: use when the agent does not need the value. Hidden columns may be used only for grouped counts and must not be selected or referenced elsewhere. Examples: passwords, API keys, access tokens, private notes, sensitive free text.
 - disabled object: use for tables or views the agent should not query at all, even if some columns might look safe.
 
 ## SQL Scope

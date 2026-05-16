@@ -122,7 +122,7 @@ function validateClauses(sql, ctx) {
 
 function isPolicyAllowedInClause(policy, clause) {
   if (policy === "visible") return true;
-  if (clause === "group by" && (policy === "hashed" || policy === "joinable")) return true;
+  if (clause === "group by") return true;
   return false;
 }
 

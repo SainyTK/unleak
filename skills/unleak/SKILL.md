@@ -88,7 +88,7 @@ When a schema and active policy exist for the requested connection, optimize for
 Policy-aware SQL rules:
 
 - `WHERE`, `HAVING`, `ORDER BY`, scalar expressions, and aggregate expressions may reference only `visible` columns.
-- `GROUP BY` may reference `visible`, `hashed`, or `joinable` columns. Grouped `hashed` or `joinable` values are still transformed before output.
+- `GROUP BY` may reference any column policy. Grouped protected values are still transformed or hidden according to their output policy.
 - Direct `SELECT` may include non-hidden columns, but protected columns (`masked`, `hashed`, `joinable`) should not be used in filters, sorts, calculations, or aggregate expressions.
 - Join conditions may use equality between `visible` or `joinable` columns only.
 - Every derived expression must have an explicit alias, e.g. `COUNT(*) AS cnt`.
@@ -99,10 +99,10 @@ Policy-aware SQL rules:
 Column policy handling:
 
 - `visible`: Safe for normal analysis. May be selected, filtered, grouped, sorted, joined, and used in expressions or aggregates.
-- `masked`: May be selected directly when useful for display, but the output is transformed. Do not use it for filters, grouping, sorting, joins, expressions, or aggregates.
+- `masked`: May be selected directly when useful for display or grouped counts, but the output is transformed. Do not use it for filters, sorting, joins, expressions, or aggregates.
 - `hashed`: May be selected directly for pseudonymous display, local comparison, or grouped counts, but the output is transformed. Do not use it for filters, sorting, joins, expressions, or aggregates.
 - `joinable`: Intended for equality joins, direct pseudonymous selection, and grouped counts. May be used in `ON a.col = b.col` when both sides are `visible` or `joinable`. Do not filter, sort, aggregate, or calculate with it.
-- `hidden`: Never reference it.
+- `hidden`: May be used only in `GROUP BY` when needed for counts. Never select it or reference it elsewhere.
 - `disabled` object: Never query it.
 
 ## Policy Updates

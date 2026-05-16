@@ -59,6 +59,9 @@ test("query output masks, hashes, omits hidden, writes csv, and rejects leaks", 
   assert.equal(grouped.rowCount, 3);
   assert.match(grouped.csv, /^customer_key,order_count\n(?:h_[0-9a-f]{16},[0-9]+\n)+$/);
   assert.doesNotMatch(grouped.csv, /(^|,)1,|(^|,)2,|(^|,)3,/);
+  const groupedHidden = expectOk(run("query.mjs", ["--connection", "sales_sqlite", "--sql", "SELECT COUNT(*) AS note_count FROM orders GROUP BY note"]));
+  assert.equal(groupedHidden.rowCount, 4);
+  assert.doesNotMatch(groupedHidden.csv, /vip customer|ship quickly|contains, comma|line/);
 
   const out = expectOk(run("query.mjs", ["--connection", "sales_sqlite", "--sql", "SELECT amount, 'contains, comma' AS sample FROM orders", "--out", "unleak-query-output/orders.csv", "--force"], { cwd }));
   assert.equal(out.format, "csv_file");

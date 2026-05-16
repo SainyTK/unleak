@@ -44,7 +44,7 @@ export function readinessSuggestion(root = skillRoot) {
 export function configSuggestion(root = skillRoot) {
   return {
     suggestion: "Ask the user to create local/db-conf.json from db-conf.example.json and edit it manually. Do not read local/db-conf.json.",
-    command: "mkdir -p local && cp db-conf.example.json local/db-conf.json",
+    command: "node scripts/init-config.mjs",
     cwd: root
   };
 }

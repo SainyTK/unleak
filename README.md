@@ -32,7 +32,7 @@ This is leakage reduction, not a sandbox. Agent permissions and the query policy
 - Applies table and column policies before query results are shown to the agent.
 - Reduces accidental leakage by masking, hashing, omitting, or blocking protected fields.
 - Lets users review and activate policy changes explicitly before they affect access.
-- Routes reads through deterministic scripts instead of raw database CLI access.
+- Routes reads through deterministic scripts instead of raw database CLI access, including `psql` and `sqlite3`.
 - Supports everyday analysis workflows for SQLite and Postgres.
 
 ## Install
@@ -60,6 +60,7 @@ After install, open an AI agent session in your project and run:
 The agent will guide the setup. It can safely do the mechanical setup work:
 
 - check readiness and install missing skill dependencies
+- create local config and install deny rules for raw database CLIs
 - list configured connections after you create the config
 - install agent deny rules
 - dump structural schema metadata without sample values
@@ -75,8 +76,7 @@ Some steps require explicit user action by design:
 Typical manual config bootstrap:
 
 ```bash
-mkdir -p .claude/skills/unleak/local
-cp .claude/skills/unleak/db-conf.example.json .claude/skills/unleak/local/db-conf.json
+node .claude/skills/unleak/scripts/init-config.mjs
 ```
 
 Then edit the config locally:
@@ -117,13 +117,15 @@ The agent must not read or edit:
 
 The agent must not run `activate-policy.mjs`. Activation is a manual user action.
 
+The agent must not use raw database CLIs after setup, including `psql`, `rtk psql`, `sqlite3`, or `rtk sqlite3`.
+
 
 ## Policy Types
 
 - `visible`: use for non-sensitive business data the agent can see directly. These columns may be selected, filtered, grouped, sorted, joined, and used in expressions. Examples: status, category, public code, created date, non-sensitive amount.
 - `masked`: use for personal or identifying data where partial traceability is useful. The agent may select the column directly, but output is masked. Examples: email, phone number, account number, customer name.
-- `hashed`: use for sensitive identifiers that need stable pseudonymous display or comparison, but not raw exposure. Output is transformed with local HMAC. Examples: customer ID, member ID, transaction ID.
-- `joinable`: use for keys needed to connect tables without exposing raw values. These columns may be used for equality joins and direct pseudonymous selection, but not for grouping, filtering, sorting, or calculations. Examples: foreign keys, internal account IDs.
+- `hashed`: use for sensitive identifiers that need stable pseudonymous display, comparison, or grouped counts, but not raw exposure. Output is transformed with local HMAC. Examples: customer ID, member ID, transaction ID.
+- `joinable`: use for keys needed to connect tables without exposing raw values. These columns may be used for equality joins, grouped counts, and direct pseudonymous selection, but not for filtering, sorting, or calculations. Examples: foreign keys, internal account IDs.
 - `hidden`: use when the agent does not need the value. Hidden columns must not be referenced. Examples: passwords, API keys, access tokens, private notes, sensitive free text.
 - disabled object: use for tables or views the agent should not query at all, even if some columns might look safe.
 

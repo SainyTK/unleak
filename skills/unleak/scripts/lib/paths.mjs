@@ -21,6 +21,6 @@ export function proposalPath(cwd, connection) {
   return path.join(cwd, "unleak-policy-review", `${connection}.policy.proposed.json`);
 }
 
-export function relFromCwd(target) {
-  return path.relative(process.cwd(), target) || ".";
+export function relFromCwd(target, cwd = process.cwd()) {
+  return path.relative(cwd, target) || ".";
 }

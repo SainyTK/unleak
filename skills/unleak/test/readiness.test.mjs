@@ -42,7 +42,7 @@ test("standalone readiness includes missing config path and suggestion", () => {
   assert.equal(result.ready, false);
   assert(result.missing.includes(path.join(root, "local", "db-conf.json")));
   const configCheck = result.checks.find((check) => check.name === "local/db-conf.json");
-  assert.equal(configCheck.details.command, "mkdir -p local && cp db-conf.example.json local/db-conf.json");
+  assert.equal(configCheck.details.command, "node scripts/init-config.mjs");
 });
 
 test("readiness npm suggestion points at the skill root", () => {

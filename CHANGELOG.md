@@ -8,6 +8,7 @@ All notable changes to `unleak` should be summarized here.
 - Add local SQLite and Postgres workflow scripts for readiness checks, schema dumps, policy proposal, policy validation, policy activation, and guarded queries.
 - Add policy-engine coverage for masking, hashing, hidden fields, joinable columns, row caps, simple joins, CTEs, FROM subqueries, and `UNION` queries.
 - Add user-facing setup docs for skill installation, local database config, manual policy activation, and supported SQL scope.
+- Install raw database CLI deny rules during config initialization, covering `psql`, `rtk psql`, `sqlite3`, and `rtk sqlite3`.
 - Add `docs/unleak-theory.md` to explain the leakage-reduction model and trust boundary.
 
 ## 0.1.0

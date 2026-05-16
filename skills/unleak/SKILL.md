@@ -29,7 +29,7 @@ Important cwd rule:
 
 - Do not leave the shell inside the Unleak skill root after installing dependencies.
 - Prefer `npm install --prefix .claude/skills/unleak` so the working directory stays at the project root.
-- If you must use `cd .claude/skills/unleak && npm install`, immediately return to the original project directory before retrying scripts or giving the user any relative-path commands.
+- If you must change directories to install dependencies, immediately return to the original project directory before retrying scripts or giving the user any relative-path commands.
 
 1. Check readiness:
    `node .claude/skills/unleak/scripts/check-readiness.mjs`
@@ -45,7 +45,7 @@ Important cwd rule:
    `node .claude/skills/unleak/scripts/query.mjs --connection <name> --file .claude/skills/unleak/local/queries/<short-name>.sql`
    Only continue to setup steps 3-12 when config, schema, or active policy is missing, or when the user explicitly asks to set up, propose, validate, activate, or update policy.
 3. If config is missing, do not read or create `unleak/local/db-conf.json`. Ask the user to run:
-   `mkdir -p .claude/skills/unleak/local && cp .claude/skills/unleak/db-conf.example.json .claude/skills/unleak/local/db-conf.json`
+   `node .claude/skills/unleak/scripts/init-config.mjs`
 4. Ask the user to edit `unleak/local/db-conf.json` manually:
    - Set a random `hmacSecret`.
    - Keep and configure only the connections they need.
@@ -87,8 +87,9 @@ When a schema and active policy exist for the requested connection, optimize for
 
 Policy-aware SQL rules:
 
-- `WHERE`, `GROUP BY`, `HAVING`, `ORDER BY`, scalar expressions, and aggregate expressions may reference only `visible` columns.
-- Direct `SELECT` may include non-hidden columns, but protected columns (`masked`, `hashed`, `joinable`) should not be used in filters, groups, sorts, or calculations.
+- `WHERE`, `HAVING`, `ORDER BY`, scalar expressions, and aggregate expressions may reference only `visible` columns.
+- `GROUP BY` may reference `visible`, `hashed`, or `joinable` columns. Grouped `hashed` or `joinable` values are still transformed before output.
+- Direct `SELECT` may include non-hidden columns, but protected columns (`masked`, `hashed`, `joinable`) should not be used in filters, sorts, calculations, or aggregate expressions.
 - Join conditions may use equality between `visible` or `joinable` columns only.
 - Every derived expression must have an explicit alias, e.g. `COUNT(*) AS cnt`.
 - `ORDER BY` must use output aliases only, not ordinals and not raw expressions.
@@ -99,8 +100,8 @@ Column policy handling:
 
 - `visible`: Safe for normal analysis. May be selected, filtered, grouped, sorted, joined, and used in expressions or aggregates.
 - `masked`: May be selected directly when useful for display, but the output is transformed. Do not use it for filters, grouping, sorting, joins, expressions, or aggregates.
-- `hashed`: May be selected directly for pseudonymous display or local comparison, but the output is transformed. Do not use it for filters, grouping, sorting, joins, expressions, or aggregates.
-- `joinable`: Intended for equality joins and direct pseudonymous selection. May be used in `ON a.col = b.col` when both sides are `visible` or `joinable`. Do not group, filter, sort, aggregate, or calculate with it.
+- `hashed`: May be selected directly for pseudonymous display, local comparison, or grouped counts, but the output is transformed. Do not use it for filters, sorting, joins, expressions, or aggregates.
+- `joinable`: Intended for equality joins, direct pseudonymous selection, and grouped counts. May be used in `ON a.col = b.col` when both sides are `visible` or `joinable`. Do not filter, sort, aggregate, or calculate with it.
 - `hidden`: Never reference it.
 - `disabled` object: Never query it.
 

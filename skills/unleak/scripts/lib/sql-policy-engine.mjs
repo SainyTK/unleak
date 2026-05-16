@@ -114,10 +114,16 @@ function validateClauses(sql, ctx) {
     if (!text) continue;
     if (clause === "order by") validateOrderBy(text);
     for (const ref of findColumnRefs(text, ctx)) {
-      if (ref.policy !== "visible") throw new SafeError(`SQL_PROTECTED_COLUMN_IN_${clause.replaceAll(" ", "_").toUpperCase()}`);
+      if (!isPolicyAllowedInClause(ref.policy, clause)) throw new SafeError(`SQL_PROTECTED_COLUMN_IN_${clause.replaceAll(" ", "_").toUpperCase()}`);
     }
     validateFunctions(text, true);
   }
+}
+
+function isPolicyAllowedInClause(policy, clause) {
+  if (policy === "visible") return true;
+  if (clause === "group by" && (policy === "hashed" || policy === "joinable")) return true;
+  return false;
 }
 
 function validateOrderByOutputOnly(sql, outputColumns) {

@@ -55,6 +55,11 @@ test("query output masks, hashes, omits hidden, writes csv, and rejects leaks", 
   expectFail(run("query.mjs", ["--connection", "sales_sqlite", "--sql", "SELECT status FROM customers WHERE customer_email = 'alice@example.com'"]), "SQL_PROTECTED_COLUMN_IN_WHERE");
   expectFail(run("query.mjs", ["--connection", "sales_sqlite", "--sql", "SELECT id FROM audit_log"]), "SQL_DISABLED_OBJECT");
 
+  const grouped = expectOk(run("query.mjs", ["--connection", "sales_sqlite", "--sql", "SELECT customer_id AS customer_key, COUNT(*) AS order_count FROM orders GROUP BY customer_id"]));
+  assert.equal(grouped.rowCount, 3);
+  assert.match(grouped.csv, /^customer_key,order_count\n(?:h_[0-9a-f]{16},[0-9]+\n)+$/);
+  assert.doesNotMatch(grouped.csv, /(^|,)1,|(^|,)2,|(^|,)3,/);
+
   const out = expectOk(run("query.mjs", ["--connection", "sales_sqlite", "--sql", "SELECT amount, 'contains, comma' AS sample FROM orders", "--out", "unleak-query-output/orders.csv", "--force"], { cwd }));
   assert.equal(out.format, "csv_file");
   const csv = fs.readFileSync(path.join(cwd, "unleak-query-output", "orders.csv"), "utf8");

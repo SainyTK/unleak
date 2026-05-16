@@ -21,6 +21,7 @@ Postgres setup uses only isolated demo objects named `unleak_*` in the configure
 
 ```bash
 node scripts/check-readiness.mjs
+node scripts/init-config.mjs
 node scripts/install-claude-settings.mjs
 node scripts/list-connections.mjs
 node scripts/dump-schema.mjs
@@ -43,12 +44,14 @@ node scripts/query.mjs --connection sales_sqlite --file ./query.sql --out ./unle
 
 If a command reports missing dependencies, run `npm install` from the Unleak skill root, then retry the same command.
 
+`init-config.mjs` creates `local/db-conf.json` from the example and installs Claude deny rules for protected files, `activate-policy.mjs`, `psql`, and `sqlite3`. `install-claude-settings.mjs` can be rerun later to repair or deduplicate those rules.
+
 ## Claude Rules
 
 - Do not read or edit `unleak/local/db-conf.json`.
 - Do not edit scripts, schema files, active policies, or `.claude/settings.json`.
 - Do not run `activate-policy.mjs`; ask the user to run it with `!node`.
-- Do not use raw database CLIs after `unleak` is configured.
+- Do not use raw database CLIs after `unleak` is configured, including `psql` and `sqlite3`.
 - Query only after schema and active policy exist.
 
 ## Test

@@ -21,10 +21,14 @@ test("install-claude-settings creates and deduplicates deny rules", () => {
   const first = expectOk(run("install-claude-settings.mjs", [], { cwd }));
   const second = expectOk(run("install-claude-settings.mjs", [], { cwd }));
   const settings = JSON.parse(fs.readFileSync(settingsPath, "utf8"));
-  assert.equal(first.denyRulesAdded, 17);
+  assert.equal(first.denyRulesAdded, 21);
   assert.equal(second.denyRulesAdded, 0);
   assert(settings.permissions.deny.every((rule) => !/\((\/|[A-Za-z]:[\\/])/.test(rule)));
   assert(settings.permissions.deny.some((rule) => rule === "Bash(*activate-policy*)"));
+  assert(settings.permissions.deny.includes("Bash(psql*)"));
+  assert(settings.permissions.deny.includes("Bash(rtk psql*)"));
+  assert(settings.permissions.deny.includes("Bash(sqlite3*)"));
+  assert(settings.permissions.deny.includes("Bash(rtk sqlite3*)"));
   assert(settings.permissions.deny.some((rule) => rule.startsWith("Read(") && rule.endsWith("local/db-conf.json)")));
 });
 
@@ -43,7 +47,8 @@ test("install-claude-settings preserves existing settings and does not edit giti
   expectOk(run("install-claude-settings.mjs", [], { cwd }));
   const settings = JSON.parse(fs.readFileSync(settingsPath, "utf8"));
   assert.equal(settings.model, "sonnet");
-  assert.deepEqual(settings.permissions.allow, ["Read(**/*.sql)"]);
+  assert(settings.permissions.allow.includes("Read(**/*.sql)"));
+  assert(settings.permissions.allow.includes("Bash(node .claude/skills/unleak/scripts/*.mjs*)"));
   assert(settings.permissions.deny.includes("Read(/tmp/existing-secret)"));
   assert.deepEqual(settings.hooks, { Stop: [] });
   assert.equal(fs.readFileSync(gitignorePath, "utf8"), "existing\n");
@@ -74,6 +79,30 @@ test("db-conf.example.json uses documented object shape with sqlite and postgres
   assert(example.connections.some((connection) => connection.dialect === "sqlite" && connection.credentials.path));
   assert(example.connections.some((connection) => connection.dialect === "postgres" && connection.credentials.host && connection.credentials.dbname && connection.credentials.username));
   assert.doesNotThrow(() => validateConfig(example));
+});
+
+test("init-config creates local config from example and refuses overwrite", () => {
+  const cwd = fs.mkdtempSync(path.join(os.tmpdir(), "unleak-init-"));
+  const configPath = path.join(skillRoot, "local", "db-conf.json");
+  const settingsPath = path.join(fs.realpathSync(cwd), ".claude", "settings.json");
+  const holdPath = path.join(os.tmpdir(), `unleak-db-conf-init-${process.pid}.json`);
+  fs.renameSync(configPath, holdPath);
+  try {
+    const output = expectOk(run("init-config.mjs", [], { cwd }));
+    assert.equal(output.path, configPath);
+    assert.equal(output.settings.settingsPath, settingsPath);
+    assert.equal(output.settings.denyRulesAdded, 21);
+    const generated = JSON.parse(fs.readFileSync(configPath, "utf8"));
+    const example = JSON.parse(fs.readFileSync(path.join(skillRoot, "db-conf.example.json"), "utf8"));
+    assert.deepEqual(generated, example);
+    const settings = JSON.parse(fs.readFileSync(settingsPath, "utf8"));
+    assert(settings.permissions.deny.includes("Bash(psql*)"));
+    assert(settings.permissions.deny.includes("Bash(sqlite3*)"));
+    expectFail(run("init-config.mjs", [], { cwd }), "DB_CONF_EXISTS");
+  } finally {
+    if (fs.existsSync(configPath)) fs.rmSync(configPath);
+    fs.renameSync(holdPath, configPath);
+  }
 });
 
 test("list-connections returns safe JSON errors for missing and invalid config", () => {

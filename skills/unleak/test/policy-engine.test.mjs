@@ -170,6 +170,22 @@ test("allows visible HAVING aggregate logic", () => {
   assert.doesNotThrow(() => validateAndPlan("SELECT category AS category, SUM(amount) AS total FROM orders GROUP BY category HAVING SUM(amount) > 100", schemaWithCategory, policyWithCategory));
 });
 
+test("allows GROUP BY on hashed and joinable columns while preserving output transforms", () => {
+  const joinablePlan = validateAndPlan("SELECT id AS order_key, COUNT(*) AS total FROM orders GROUP BY id", schema, policy);
+  assert.deepEqual(joinablePlan.outputColumns, ["order_key", "total"]);
+  assert(joinablePlan.transforms.find((item) => item.column === "order_key" && item.type === "hashed"));
+
+  const hashedPolicy = {
+    ...policy,
+    objects: policy.objects.map((object) => object.name === "orders" ? {
+      ...object,
+      columns: object.columns.map((column) => column.name === "id" ? { ...column, policy: "hashed" } : column)
+    } : object)
+  };
+  const hashedPlan = validateAndPlan("SELECT id AS order_key, COUNT(*) AS total FROM orders GROUP BY id", schema, hashedPolicy);
+  assert(hashedPlan.transforms.find((item) => item.column === "order_key" && item.type === "hashed"));
+});
+
 test("allows visible-only window expressions and rejects protected window expressions", () => {
   const visible = validateAndPlan("SELECT SUM(amount) OVER () AS total_amount FROM orders", schema, policy);
   assert.deepEqual(visible.outputColumns, ["total_amount"]);
@@ -188,6 +204,7 @@ test("allows DISTINCT only when selected expression is visible-safe", () => {
 
 test("rejects protected GROUP BY, HAVING, ORDER BY, LIKE, and IN usage", () => {
   assert.throws(() => validateAndPlan("SELECT customer_email FROM orders GROUP BY customer_email", schema, policy), /SQL_PROTECTED_COLUMN_IN_GROUP_BY|SQL_PROTECTED_COLUMN_IN_DISTINCT/);
+  assert.throws(() => validateAndPlan("SELECT customer_email, COUNT(*) AS total FROM orders GROUP BY customer_email", schema, policy), /SQL_PROTECTED_COLUMN_IN_GROUP_BY/);
   assert.throws(() => validateAndPlan("SELECT amount AS amount_out FROM orders HAVING customer_email = 'alice@example.com'", schema, policy), /SQL_PROTECTED_COLUMN_IN_HAVING/);
   assert.throws(() => validateAndPlan("SELECT amount AS amount_out FROM orders ORDER BY 1", schema, policy), /SQL_ORDER_BY_ORDINAL_REJECTED/);
   assert.throws(() => validateAndPlan("SELECT amount FROM orders WHERE customer_email LIKE '%@example.com'", schema, policy), /SQL_PROTECTED_COLUMN_IN_WHERE/);

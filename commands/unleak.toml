@@ -1,2 +1,0 @@
-description = "Activate unleak for sensitive local analysis"
-prompt = "Use unleak for this task. Keep raw data local, discover metadata first, classify risky fields, compute deterministic safe artifacts locally, and validate artifact plus lineage before the model uses the result."

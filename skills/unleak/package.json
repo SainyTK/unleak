@@ -1,0 +1,19 @@
+{
+  "name": "unleak",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test --test-concurrency=1 test/*.test.mjs",
+    "setup:sqlite": "node test/setup-sqlite.mjs",
+    "setup:postgres": "node test/setup-postgres.mjs",
+    "test:workflow": "node test/workflow.test.mjs",
+    "test:postgres": "UNLEAK_POSTGRES_TEST=1 node --test --test-concurrency=1 test/*.test.mjs",
+    "test:postgres:active": "UNLEAK_POSTGRES_TEST=1 UNLEAK_POSTGRES_ACTIVE_TEST=1 node --test --test-concurrency=1 test/*.test.mjs"
+  },
+  "dependencies": {
+    "better-sqlite3": "^12.4.6",
+    "node-sql-parser": "^5.3.13",
+    "pg": "^8.16.3"
+  }
+}

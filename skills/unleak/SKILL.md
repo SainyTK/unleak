@@ -1,166 +1,111 @@
 ---
 name: unleak
-description: Use this skill when users want privacy-preserving local analysis for coding agents over sensitive CSV files, SQLite databases, or project data. Keep raw data local, compute deterministic derived artifacts on the operator machine, and release only validated aggregates or other approved outputs to the model.
+description: MUST use this skill when installed and users ask to query, inspect, or run SELECT statements against SQLite or Postgres databases. Always route database reads through Unleak when a project contains an unleak/ folder, or when users ask to list database connections, inspect schemas, propose or validate access policies, activate policies, or query approved database data with leakage guardrails. This skill prevents direct credential, policy, schema, and raw database CLI access.
+compatibility: Requires Node.js and run `npm install` before using this skill.
 ---
 
 # Unleak
 
-Use this skill for teams using coding agents on sensitive local CSV, SQLite, or project data where raw records must stay local.
+Use `unleak` for database questions only when the current project has an `unleak/` folder. Unleak reduces leakage risk; it is not a sandbox.
 
-Product wedge: privacy-preserving local analysis for coding agents. Compute on raw data locally, release only validated derived artifacts to the model.
+## Rules
 
-Default rule: the model should not inspect raw rows when a deterministic local script can compute the answer or produce a safer intermediate artifact.
+- Never read or edit `unleak/local/db-conf.json`.
+- Never edit `unleak/scripts/**`, `unleak/local/schema/**`, or `unleak/local/active-policies/**`.
+- Never run `activate-policy.mjs`; only suggest the manual command with `!node`.
+- Never use raw database CLIs when `unleak` is configured.
+- Do not query until schema and an active policy exist.
+- When schema and an active policy already exist, answer normal data-inspection requests by querying approved data only. Do not propose, validate, activate, or re-create policy unless the user explicitly asks to set up or update policy.
+- Prefer inline SQL with `query.mjs --sql` for normal queries. Do not create project-visible query files like `./query.sql` for routine analysis.
+- Create a SQL file only when the query is very complex. Put those files under `unleak/local/queries/` in the skill local state, not in the user's project surface.
+- Treat Claude permissions as guardrails, not a complete sandbox.
+- Keep the user's current project directory as the working directory. Relative paths must continue to work for the user.
 
-## Outcomes
+## Workflow
 
-- classify data sources and risky fields before analysis
-- confirm ambiguous sensitivity decisions with the user
-- compute aggregates or features locally
-- validate that the release artifact contains only allowed fields
-- keep lineage from each released field back to its source columns
-- block or revise analysis plans when they would expose prohibited data
+Run scripts from the user's current project directory, replacing `.claude/skills/unleak` with the actual `unleak/` folder path.
 
-## When to trigger setup
+Important cwd rule:
 
-Trigger setup if any of the following are true:
+- Do not leave the shell inside the Unleak skill root after installing dependencies.
+- Prefer `npm install --prefix .claude/skills/unleak` so the working directory stays at the project root.
+- If you must use `cd .claude/skills/unleak && npm install`, immediately return to the original project directory before retrying scripts or giving the user any relative-path commands.
 
-- the user asks for analysis over CSV files, spreadsheets, SQL tables, SQLite databases, warehouses, or scripts
-- the project has no `unleak` config yet
-- new tables, files, or high-risk columns have appeared since the last setup
-- the requested task needs data the current policy does not classify
+1. Check readiness:
+   `node .claude/skills/unleak/scripts/check-readiness.mjs`
+   If the output reports `DEPENDENCIES_NOT_INSTALLED` or suggests `npm install`, run:
+   `npm install --prefix .claude/skills/unleak`
+   Then retry the same readiness command from the original project directory and continue.
+2. List safe connections:
+   `node .claude/skills/unleak/scripts/list-connections.mjs`
+   If the user asked to inspect, analyze, query, or find patterns in data and the requested connection already has schema and an active policy, skip setup and policy work. Write focused SELECT queries and run:
+   `node .claude/skills/unleak/scripts/query.mjs --connection <name> --sql "SELECT ..."`
+   Continue iterating with more SELECT queries until the user's data question is answered.
+   If a query is too complex for inline SQL, create it under `.claude/skills/unleak/local/queries/<short-name>.sql` and run:
+   `node .claude/skills/unleak/scripts/query.mjs --connection <name> --file .claude/skills/unleak/local/queries/<short-name>.sql`
+   Only continue to setup steps 3-12 when config, schema, or active policy is missing, or when the user explicitly asks to set up, propose, validate, activate, or update policy.
+3. If config is missing, do not read or create `unleak/local/db-conf.json`. Ask the user to run:
+   `mkdir -p .claude/skills/unleak/local && cp .claude/skills/unleak/db-conf.example.json .claude/skills/unleak/local/db-conf.json`
+4. Ask the user to edit `unleak/local/db-conf.json` manually:
+   - Set a random `hmacSecret`.
+   - Keep and configure only the connections they need.
+   - For SQLite, set the database file path.
+   - For Postgres, set host, port, dbname, username, and password.
+5. When the user says the config is saved, rerun:
+   `node .claude/skills/unleak/scripts/list-connections.mjs`
+6. Install deny rules if needed:
+   `node .claude/skills/unleak/scripts/install-claude-settings.mjs`
+7. Dump schema:
+   `node .claude/skills/unleak/scripts/dump-schema.mjs`
+8. Propose policy:
+   `node .claude/skills/unleak/scripts/propose-policy.mjs`
+9. Read schema and proposed policy files. Briefly explain policy recommendations.
+10. Edit only files under `./unleak-policy-review/*.policy.proposed.json`.
+11. Validate:
+   `node .claude/skills/unleak/scripts/validate-policy.mjs`
+12. Ask the user to activate manually:
+   `!node .claude/skills/unleak/scripts/activate-policy.mjs ./unleak-policy-review/<connection>.policy.proposed.json`
+13. Query approved data:
+    `node .claude/skills/unleak/scripts/query.mjs --connection <name> --sql "SELECT ..."`
 
-If setup is incomplete, route the user into setup before doing analysis.
+## Initialized Query Playbook
 
-## Setup workflow
+When a schema and active policy exist for the requested connection, optimize for valid queries:
 
-1. Discover metadata only. Count files or tables first. Cap first-pass setup at 100 sources.
-2. Enumerate columns for each source and infer candidate sensitivity from names.
-3. Ask the user 3-4 short questions to confirm what is truly highest-risk, high-risk, and allowed-derived output.
-4. Write or update the local policy/config next to the skill install location.
-5. Confirm the effective classification back to the user, especially `highest` and `high`.
-6. Record approved release patterns: allowed aggregates, thresholds, minimum group sizes, bucketing rules, and whether aliases are required.
+1. Read the schema file and active policy for that connection before writing analysis SQL:
+   - `.claude/skills/unleak/local/schema/<connection>.schema.json`
+   - `.claude/skills/unleak/local/active-policies/<connection>.json`
+2. Make a quick allowed-field map:
+   - objects with `objectPolicy: "enabled"`
+   - columns with policy `visible`, `masked`, `hashed`, or `joinable`
+   - columns with policy `visible` only
+3. Build queries from this map, not from guessed database knowledge.
+4. For first-pass exploration, prefer simple one-table summaries: `COUNT(*)`, visible categorical counts, visible numeric `MIN`/`MAX`/`AVG`/`SUM`, and visible date buckets.
+5. Avoid `UNION` for table overviews. Run simple count queries separately instead.
+6. Avoid parallel or chained query batches until each query shape has passed once. One failed query can cancel useful follow-up work.
+7. For non-trivial queries, run `--dry-run` first, then run the same SQL without `--dry-run` after it validates.
 
-Use `scripts/discover_sources.py` for discovery and inference. The script emits interview prompts for uncertain fields.
-Then use `scripts/init_policy.py --discovery-summary discovery.json` to draft `.unleak/policy.json` before asking the user to confirm or tighten it.
+Policy-aware SQL rules:
 
-## Analysis workflow
+- `WHERE`, `GROUP BY`, `HAVING`, `ORDER BY`, scalar expressions, and aggregate expressions may reference only `visible` columns.
+- Direct `SELECT` may include non-hidden columns, but protected columns (`masked`, `hashed`, `joinable`) should not be used in filters, groups, sorts, or calculations.
+- Join conditions may use equality between `visible` or `joinable` columns only.
+- Every derived expression must have an explicit alias, e.g. `COUNT(*) AS cnt`.
+- `ORDER BY` must use output aliases only, not ordinals and not raw expressions.
+- Prefer qualified column names in joins, e.g. `t.company_id = lc.company_id`.
+- If validation fails, read the error code and adjust the SQL to use visible columns or simpler direct selections. Do not respond by proposing a new policy unless the user asked to update policy.
 
-1. Do not read raw records into the model.
-2. Create a task-local deterministic analysis script that reads raw data locally and writes:
-   - a derived artifact for model consumption
-   - a lineage manifest mapping each derived field to source columns
-3. Validate the artifact with `scripts/validate_release.py` before using it in a prompt.
-4. If validation fails, revise the script to produce coarser aggregates, buckets, percentiles, aliases, or thresholded results.
-5. Only after validation passes may the model inspect the sanitized artifact.
-6. Join model recommendations back to real entities locally, outside the model context, if needed.
+Column policy handling:
 
-If the user explicitly requires raw-field access, stop and explain the specific blocked fields, why they were blocked, and what safer alternatives exist.
+- `visible`: Safe for normal analysis. May be selected, filtered, grouped, sorted, joined, and used in expressions or aggregates.
+- `masked`: May be selected directly when useful for display, but the output is transformed. Do not use it for filters, grouping, sorting, joins, expressions, or aggregates.
+- `hashed`: May be selected directly for pseudonymous display or local comparison, but the output is transformed. Do not use it for filters, grouping, sorting, joins, expressions, or aggregates.
+- `joinable`: Intended for equality joins and direct pseudonymous selection. May be used in `ON a.col = b.col` when both sides are `visible` or `joinable`. Do not group, filter, sort, aggregate, or calculate with it.
+- `hidden`: Never reference it.
+- `disabled` object: Never query it.
 
-## Preferred release modes
+## Policy Updates
 
-Prefer one of these release modes, in this order:
+Treat an active policy as initialized state. For prompts like "inspect data", "find patterns", "analyze this connection", or "run a SELECT", use the active policy and focus on queries. Do not refresh schema, propose a replacement policy, edit proposed policies, validate proposals, or ask for activation just because the user requested analysis.
 
-1. Safe insight pack: aliases, indexes, percentiles, buckets, and short prompt scaffolding for narrative analysis.
-2. Restricted local gateway: a tool boundary that exposes only approved derived measures for iterative follow-up questions.
-3. Differential privacy: optional for repeated shared releases where reconstruction risk matters.
-
-Keep confidential-computing or enclave workflows out of scope for this skill unless the user explicitly asks for infrastructure work outside `unleak`.
-
-## Target users
-
-- teams using coding agents on sensitive local CSV, SQLite, and project data
-- operators who need analysis help without exposing raw rows, exact identifiers, or unrestricted schema access
-- workflows where validated derived artifacts are acceptable but raw prompting is not
-
-## Interview questions
-
-Ask only the minimum needed to calibrate policy. Prefer questions like:
-
-- Which data classes are unacceptable to expose to the model under any circumstance?
-- Are employee names, customer names, emails, phone numbers, exact revenue, exact costs, or exact prices considered sensitive here?
-- What minimum aggregation level is acceptable: per record, per customer, per branch, per region, or only global summaries?
-- Are pseudonymous aliases acceptable for entities such as customers, branches, vendors, or projects?
-
-## Risk levels
-
-- `highest`: direct identifiers, secrets, credentials, precise regulated data, protected health data, payment data, raw customer communications, unreleased legal or security material
-- `high`: proprietary business metrics, exact revenue/cost/profit, employee performance details, contracts, pricing tables, source-specific operational metrics
-- `moderate`: internal but already aggregated metrics, pseudonymous event-level data, low-cardinality operational telemetry
-- `low`: approved derived metrics, buckets, percentiles, sufficiently aggregated summaries, public or already-approved data
-
-The user can override defaults, but make overrides explicit in config.
-
-## Release rules
-
-By default, block release artifacts that contain any of:
-
-- columns classified as `highest` or `high`
-- free-text fields from humans
-- raw row-level extracts
-- groups below the configured minimum size
-- exact monetary values when the policy only allows indexes, deltas, bands, or percentiles
-- joins that reconstruct high-risk attributes through combined low-risk fields
-
-Prefer these transforms:
-
-- aliases instead of real names
-- median-relative indexes instead of exact values
-- percentile ranks instead of raw ordering features
-- fixed bands or buckets instead of exact counts where reconstruction risk matters
-- minimum group thresholds and top-coding for sparse categories
-
-## Install targets
-
-Treat these as first-class install targets:
-
-- Codex
-- Claude Code
-
-Gemini packaging is optional and secondary. Keep other agent surfaces out of scope until these primary targets are stable.
-
-## Hooks
-
-If Claude Code hooks are available, wire `scripts/unleak_hook.py` into `UserPromptSubmit`, `PreToolUse` for `Bash|Read`, and `PostToolUse` for generated artifact validation.
-
-Use project-level `.claude/settings.json` when the policy is repo-specific. Use user-level settings when the same controls should follow the operator across projects.
-
-See `references/hook-patterns.md` for example hook wiring and behavior.
-
-## Runnable Example
-
-Use this path to demo or test the scaffold locally:
-
-1. `python scripts/discover_sources.py data/branches.csv > discovery.json`
-2. `python scripts/init_policy.py --discovery-summary discovery.json`
-3. write a local analysis script that produces `safe_insight_pack.json` plus `safe_insight_pack.lineage.json`
-4. `python scripts/validate_release.py --policy .unleak/policy.json --artifact safe_insight_pack.json --lineage safe_insight_pack.lineage.json`
-5. only after a clean validator result should the model use the prompt patterns in `references/prompt-patterns.md`
-
-For a checked-in runnable example, use `python examples/branch_analysis/run_analysis.py`.
-
-## Files
-
-Read these only when needed:
-
-- `references/research.md`: source-backed rationale and assumptions
-- `references/policy-spec.md`: config and policy semantics
-- `references/benchmark-plan.md`: evaluation tasks and benchmark framing
-- `references/example-patterns.md`: concrete patterns lifted from the local `confident-insights` project
-- `references/prompt-patterns.md`: prompt scaffolds for sanitized artifacts and restricted tools
-
-Execute these scripts instead of reimplementing them:
-
-- `scripts/discover_sources.py`
-- `scripts/init_policy.py`
-- `scripts/validate_release.py`
-- `scripts/unleak_hook.py`
-
-Use the template artifact in `assets/templates/safe_insight_pack_template.json` when you need a starting shape for a sanitized decision pack plus lineage metadata.
-
-## Non-goals
-
-- do not claim infrastructure-grade protection such as TEEs or self-hosted enclaves
-- do not treat reversible masking as sufficient protection on its own
-- do not let the model run unrestricted SQL over unknown schemas
-- do not bypass failed validations by asking the model to be careful
-- do not release raw prompts or raw extracts to the model as a convenience shortcut
+Policy can be updated only when the user explicitly asks to update, revise, expand, tighten, regenerate, or re-activate policy. In that case, run the relevant setup/policy steps above and keep edits limited to `./unleak-policy-review/*.policy.proposed.json`.

@@ -1,2 +1,0 @@
-description = "Validate a derived release artifact"
-prompt = "Validate the current derived artifact with unleak. Check lineage, policy compatibility, and minimum group thresholds. If validation fails, explain what must be coarsened."

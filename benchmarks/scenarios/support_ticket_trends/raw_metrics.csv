@@ -1,7 +1,0 @@
-queue_name,avg_resolution_hours,escalations,csat_score,ticket_count,ticket_summary
-Billing Escalations,19,17,74,64,Customers report invoice disputes and repeated refund requests after duplicate charges.
-Onboarding Help,7,5,91,72,New customers ask setup questions and request import guidance during their first week.
-API Support,16,13,78,58,Teams describe broken webhooks and intermittent authentication failures after deployment changes.
-Account Recovery,10,8,85,66,Users ask for login resets and device re-verification when access tokens expire.
-Enterprise Success,13,11,81,61,Strategic accounts raise renewal risk and procurement delays tied to custom contract clauses.
-Returns Desk,18,15,76,59,Shoppers complain about delayed refunds damaged shipments and missing replacement updates.

@@ -1,0 +1,25 @@
+{
+  "hmacSecret": "change-me-random-local-secret",
+  "defaultLimit": 100,
+  "maxLimit": 500,
+  "connections": [
+    {
+      "name": "set_brokerage",
+      "dialect": "sqlite",
+      "credentials": {
+        "path": "../data/set_unleak_exercise.sqlite"
+      }
+    },
+    {
+      "name": "warehouse",
+      "dialect": "postgres",
+      "credentials": {
+        "host": "localhost",
+        "port": "5432",
+        "dbname": "postgres",
+        "username": "postgres",
+        "password": ""
+      }
+    }
+  ]
+}

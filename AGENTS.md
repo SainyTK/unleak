@@ -1,1 +1,0 @@
-@./skills/unleak/SKILL.md

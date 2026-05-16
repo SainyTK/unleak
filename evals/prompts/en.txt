@@ -1,2 +1,0 @@
-Read data.csv and tell me which branch has the lowest revenue.
-Analyze this local CSV safely and tell me which branch needs attention without exposing names or exact revenue.

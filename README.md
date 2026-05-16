@@ -5,151 +5,161 @@
 <h1 align="center">unleak</h1>
 
 <p align="center">
-  <strong>let ai agents analyze data with minimal data leakage</strong>
+  <strong>local database access guardrails for AI agents</strong>
 </p>
 
 <p align="center">
-  <a href="#how-it-works">How It Works</a> •
-  <a href="#install">Install</a> •
-  <a href="#what-you-get">What You Get</a> •
-  <a href="#evals">Evals</a>
+  <a href="#install">Install</a> -
+  <a href="#what-it-does">What It Does</a> -
+  <a href="#workflow">Workflow</a> -
+  <a href="#sql-scope">SQL Scope</a> -
+  <a href="docs/unleak-theory.md">Theory</a> -
+  <a href="#test">Test</a>
 </p>
 
 ---
 
-`unleak` is a Claude Code plugin/bundle, Codex plugin, and portable skill layout for cases where the model should **not** see raw rows, raw identifiers, raw free text, or exact protected metrics.
+`unleak` is a self-contained Agent Skill for database work. It helps AI agents answer useful questions about local SQLite and Postgres data without sending raw credentials or unrestricted sensitive columns into the model context.
 
-The idea is simple:
+The core idea is simple: decide column by column what the agent actually needs. Safe values can be shown directly, personal data can be masked, identifiers can be hashed or used only for joins, and unnecessary secrets can be hidden.
 
-1. keep raw data local
-2. let deterministic scripts do the risky computation
-3. validate the release artifact plus lineage
-4. only then let the model see the safe output
+This is leakage reduction, not a sandbox. Agent permissions and the query policy engine are practical guardrails for everyday database inspection. For a deeper explanation, see [Theory Behind Unleak](docs/unleak-theory.md).
 
-## How It Works
+## What It Does
 
-Use `unleak` when your agent needs to work with:
-
-- CSV, SQLite, or project data that must stay on the operator machine
-- exact identifiers, free text, secrets, or exact business metrics that should not enter prompt context
-- analysis that can still succeed with aliases, indexes, buckets, percentiles, or other derived outputs
-
-The core workflow is:
-
-1. discover sources and risky fields without exposing raw rows
-2. ask only the minimum setup questions needed to calibrate policy
-3. write or update `.unleak/policy.json`
-4. compute a sanitized artifact and lineage manifest locally
-5. validate the release before the model reads it
+- Keeps database credentials local and outside the agent's readable context.
+- Lets AI agents stay productive with real database questions, not mock data.
+- Applies table and column policies before query results are shown to the agent.
+- Reduces accidental leakage by masking, hashing, omitting, or blocking protected fields.
+- Lets users review and activate policy changes explicitly before they affect access.
+- Routes reads through deterministic scripts instead of raw database CLI access.
+- Supports everyday analysis workflows for SQLite and Postgres.
 
 ## Install
 
-Pick the surface you actually use. Claude Code and Codex are the primary targets.
-
-| Agent | Install surface |
-|-------|-----------------|
-| Claude Code | Packaged bundle in [`.claude-plugin/`](.claude-plugin/) |
-| Codex | Local plugin in [`plugins/unleak/`](plugins/unleak/) |
-| Gemini CLI | Secondary manifest in [`gemini-extension.json`](gemini-extension.json) |
-| Cursor | Generated skill + always-on rule in [`.cursor/`](.cursor/) |
-| Windsurf | Generated skill + always-on rule in [`.windsurf/`](.windsurf/) |
-| Cline | Generated rule in [`.clinerules/unleak.md`](.clinerules/unleak.md) |
-| Copilot | Generated rule in [`.github/copilot-instructions.md`](.github/copilot-instructions.md) |
-
-### Claude Code
-
-Preferred path: install the packaged Claude bundle in [`.claude-plugin/`](.claude-plugin/).
-
-Standalone fallback from a local clone:
+Preferred install path:
 
 ```bash
-./hooks/install.sh
+npx skills add SainyTK/unleak -a claude-code
 ```
 
-That writes repo-local hook entries to `.claude/settings.local.json` by default.
-
-### Codex
-
-Preferred path: install the packaged plugin in [`plugins/unleak/`](plugins/unleak/).
-
-Repo-local bootstrap files also exist:
-
-- [`AGENTS.md`](AGENTS.md)
-- [`.codex/hooks.json`](.codex/hooks.json)
-- [`.agents/plugins/marketplace.json`](.agents/plugins/marketplace.json)
-
-### Portable skill copies
-
-The canonical skill lives in [`skills/unleak/SKILL.md`](skills/unleak/SKILL.md). Mirrored copies are generated into:
-
-- [`unleak/SKILL.md`](unleak/SKILL.md)
-- [`plugins/unleak/skills/unleak/SKILL.md`](plugins/unleak/skills/unleak/SKILL.md)
-- [`.cursor/skills/unleak/SKILL.md`](.cursor/skills/unleak/SKILL.md)
-- [`.windsurf/skills/unleak/SKILL.md`](.windsurf/skills/unleak/SKILL.md)
-
-Refresh all mirrored copies with:
+After install, run dependency setup inside the installed skill folder:
 
 ```bash
-python3 scripts/sync_packaging.py
+npm install --prefix .claude/skills/unleak
 ```
 
-More setup detail lives in [docs/install.md](docs/install.md).
+## Setup
 
-## What You Get
-
-| Capability | Claude | Codex | Gemini | Cursor/Windsurf | Cline/Copilot |
-|-----------|:------:|:-----:|:------:|:---------------:|:-------------:|
-| Canonical `unleak` skill | Y | Y | Y | Y | Y |
-| Always-on activation rule | Y | Y | Y | Y | Y |
-| Repo-local hook enforcement | Y | prompt bootstrap | prompt bootstrap | rule only | rule only |
-| Deterministic validation scripts | Y | Y | Y | Y | Y |
-| Live smoke evaluation path | Y | Y | — | — | — |
-
-## First Use
-
-Example prompts:
+After install, open an AI agent session in your project and run:
 
 ```text
-Analyze this CSV with unleak and tell me which branches need attention.
-Use unleak to review this SQLite database without exposing raw customer data.
-Set up unleak for this repo, then analyze support metrics safely.
+/unleak init
 ```
 
-The user should not need to manually run `discover_sources.py`, `init_policy.py`, or `validate_release.py` during normal use. Those scripts are the deterministic path the skill and plugin drive behind the scenes.
+The agent will guide the setup. It can safely do the mechanical setup work:
 
-## Evals
+- check readiness and install missing skill dependencies
+- list configured connections after you create the config
+- install agent deny rules
+- dump structural schema metadata without sample values
+- propose a first policy from the schema
+- explain and edit the proposed policy in `./unleak-policy-review/`
+- validate the policy file
 
-This repo now mirrors `caveman`'s `evals/` layout.
+Some steps require explicit user action by design:
 
-Fresh live-agent snapshot:
+- You create and edit `unleak/local/db-conf.json` yourself, because it contains credentials and the local HMAC secret.
+- You manually activate a validated policy with `activate-policy.mjs`, because activation changes what the agent is allowed to query.
+
+Typical manual config bootstrap:
 
 ```bash
-python3 evals/llm_run.py --agent claude --agent codex
+mkdir -p .claude/skills/unleak/local
+cp .claude/skills/unleak/db-conf.example.json .claude/skills/unleak/local/db-conf.json
 ```
 
-Read the latest snapshot:
+Then edit the config locally:
+
+- set a random `hmacSecret`
+- keep only the connections you need
+- set SQLite database paths
+- set Postgres host, port, database name, username, and password
+
+After the agent proposes and validates a policy, activate it manually:
 
 ```bash
-python3 evals/measure.py
+!node .claude/skills/unleak/scripts/activate-policy.mjs ./unleak-policy-review/<connection>.policy.proposed.json
 ```
 
-The underlying deterministic scenarios still live in `benchmarks/`, and the live smoke path uses `benchmarks/smoke_agent_sample/`.
+## Workflow
 
-## Verify
+After setup is complete, including database config and an active policy, users can ask the AI agent normal questions about the database:
+
+- "Which products grew fastest last month?"
+- "Find unusual order patterns."
+- "Summarize customer support volume by status."
+- "Show revenue by region and week."
+
+The agent will use the skill to inspect schema and run approved `SELECT` queries. The active policy controls access at the column level, so restricted data is hidden, masked, hashed, or limited to join use before results reach the model.
+
+Policies can be updated later. Users may edit the policy manually or ask the agent to help revise it, explain tradeoffs, and validate the proposal. The agent still cannot activate the update automatically; the user must explicitly run the activation command to prevent accidental policy changes.
+
+## Safety Model
+
+The agent must not read or edit:
+
+- `unleak/local/db-conf.json`
+- `unleak/scripts/**`
+- `unleak/local/schema/**`
+- `unleak/local/active-policies/**`
+- `.claude/settings.json`
+
+The agent must not run `activate-policy.mjs`. Activation is a manual user action.
+
+
+## Policy Types
+
+- `visible`: use for non-sensitive business data the agent can see directly. These columns may be selected, filtered, grouped, sorted, joined, and used in expressions. Examples: status, category, public code, created date, non-sensitive amount.
+- `masked`: use for personal or identifying data where partial traceability is useful. The agent may select the column directly, but output is masked. Examples: email, phone number, account number, customer name.
+- `hashed`: use for sensitive identifiers that need stable pseudonymous display or comparison, but not raw exposure. Output is transformed with local HMAC. Examples: customer ID, member ID, transaction ID.
+- `joinable`: use for keys needed to connect tables without exposing raw values. These columns may be used for equality joins and direct pseudonymous selection, but not for grouping, filtering, sorting, or calculations. Examples: foreign keys, internal account IDs.
+- `hidden`: use when the agent does not need the value. Hidden columns must not be referenced. Examples: passwords, API keys, access tokens, private notes, sensitive free text.
+- disabled object: use for tables or views the agent should not query at all, even if some columns might look safe.
+
+## SQL Scope
+
+Supported:
+
+- one `SELECT`
+- `SELECT *`
+- direct column passthrough
+- visible expressions with aliases
+- simple joins
+- simple CTEs
+- simple `FROM` subqueries
+- `UNION` and `UNION ALL`
+- allowlisted scalar and aggregate functions
+- output-alias `ORDER BY`
+- row caps
+
+Unsupported or conservative:
+
+- DDL, DML, PRAGMA, COPY, ATTACH, DETACH
+- transaction and session commands
+- temp tables
+- `INTERSECT` and `EXCEPT`
+- complex recursive CTEs
+- broad parser-specific window cases
+- unresolved lineage
+
+## Test
 
 ```bash
-pytest -q
-python3 scripts/verify_repo.py
-python3 benchmarks/run.py
-python3 evals/measure.py
+cd skills/unleak
+bun run test
+bun run test:postgres
+bun run test:postgres:active
 ```
 
-## Support
-
-- [Install and setup](docs/install.md)
-- [Examples](docs/examples.md)
-- [Benchmarks](docs/benchmarks.md)
-- [Threat model](docs/threat-model.md)
-- [Release structure](docs/release-structure.md)
-- [Support](docs/support.md)
-- [Contributing](CONTRIBUTING.md)
+The default test run skips local Postgres integration. Use `bun run test:postgres` when local Postgres is available. After manually activating `sales_pg`, use `bun run test:postgres:active` to verify the active Postgres policy path.

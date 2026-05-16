@@ -1,4 +1,0 @@
-{
-  "raw_bottom_entities": ["Billing Escalations", "Returns Desk", "API Support"],
-  "baseline_exposed_high_risk_fields": ["queue_name", "ticket_summary"]
-}

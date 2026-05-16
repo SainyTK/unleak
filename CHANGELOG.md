@@ -2,6 +2,14 @@
 
 All notable changes to `unleak` should be summarized here.
 
+## 0.1.2
+
+- Add optional per-column policy capabilities for `select`, `filter`, `group`, `sort`, `join`, `aggregate`, and `expression`.
+- Keep existing policy behavior as the default when capability overrides are absent.
+- Allow direct sortable columns in `ORDER BY` while preserving ordinal and expression restrictions.
+- Expand safe analytic SQL function support for anomaly-detection workflows, including `abs`, `nullif`, `strftime`, and `julianday`.
+- Document capability overrides in the README and skill instructions.
+
 ## 0.1.1
 
 - Refactor the project into a focused installable skill package under `skills/unleak/`.

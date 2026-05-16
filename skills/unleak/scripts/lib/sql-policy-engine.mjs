@@ -7,7 +7,7 @@ const parser = new Parser();
 const BAD_SQL = /\b(insert|update|delete|create|alter|drop|truncate|merge|begin|commit|rollback|pragma|copy|attach|detach|temporary|temp)\b/i;
 const CLAUSE_NAMES = ["where", "group by", "having", "order by"];
 const AGG_FUNCS = new Set(["count", "sum", "avg", "min", "max"]);
-const SCALAR_FUNCS = new Set(["cast", "coalesce", "round", "date", "date_trunc", "lower", "upper"]);
+const SCALAR_FUNCS = new Set(["abs", "cast", "coalesce", "date", "date_trunc", "julianday", "lower", "nullif", "round", "strftime", "upper"]);
 
 export function stripSqlComments(sql) {
   return String(sql || "")
@@ -38,7 +38,7 @@ export function validateAndPlan(sql, schema, policy) {
     throw new SafeError("SQL_PROTECTED_COLUMN_IN_DISTINCT");
   }
   const rewrittenSql = `${cleanSql.slice(0, cleanSql.length - sqlWithoutCtes.length)}${replaceSelectList(sqlWithoutCtes, planned.sqlItems.join(", "))}`;
-  validateOrderByOutputOnly(contextSql, planned.outputColumns);
+  validateOrderByAllowed(contextSql, planned.outputColumns, ctx);
   return {
     originalSql: cleanSql,
     rewrittenSql,
@@ -114,25 +114,47 @@ function validateClauses(sql, ctx) {
     if (!text) continue;
     if (clause === "order by") validateOrderBy(text);
     for (const ref of findColumnRefs(text, ctx)) {
-      if (!isPolicyAllowedInClause(ref.policy, clause)) throw new SafeError(`SQL_PROTECTED_COLUMN_IN_${clause.replaceAll(" ", "_").toUpperCase()}`);
+      if (!isColumnAllowedInClause(ref, clause)) throw new SafeError(`SQL_PROTECTED_COLUMN_IN_${clause.replaceAll(" ", "_").toUpperCase()}`);
     }
     validateFunctions(text, true);
   }
 }
 
-function isPolicyAllowedInClause(policy, clause) {
-  if (policy === "visible") return true;
-  if (clause === "group by") return true;
+function isColumnAllowedInClause(ref, clause) {
+  const capability = capabilityForClause(clause);
+  if (hasCapability(ref, capability)) return true;
+  if (clause === "group by" && !ref.policyEntry.capabilities) return true;
   return false;
 }
 
-function validateOrderByOutputOnly(sql, outputColumns) {
+function capabilityForClause(clause) {
+  if (clause === "where" || clause === "having") return "filter";
+  if (clause === "group by") return "group";
+  if (clause === "order by") return "sort";
+  return null;
+}
+
+function hasCapability(ref, capability) {
+  if (!capability) return false;
+  const explicit = ref.policyEntry.capabilities;
+  if (explicit !== undefined) return explicit.includes(capability);
+  if (ref.policy === "visible") return ["select", "filter", "group", "sort", "join", "aggregate", "expression"].includes(capability);
+  if (ref.policy === "joinable") return ["select", "join", "group"].includes(capability);
+  if (ref.policy === "masked" || ref.policy === "hashed") return ["select", "group"].includes(capability);
+  if (ref.policy === "hidden") return capability === "group";
+  return false;
+}
+
+function validateOrderByAllowed(sql, outputColumns, ctx) {
   const text = extractClause(sql, "order by");
   if (!text) return;
   const allowed = new Set(outputColumns);
   for (const item of splitTopLevel(text)) {
     const normalized = item.trim().replace(/\s+(asc|desc)\s*$/i, "").replace(/^"|"$/g, "");
-    if (!allowed.has(normalized)) throw new SafeError("SQL_ORDER_BY_OUTPUT_ALIAS_ONLY");
+    if (allowed.has(normalized)) continue;
+    const direct = directRef(normalized, ctx);
+    if (direct && hasCapability(direct, "sort")) continue;
+    throw new SafeError("SQL_ORDER_BY_OUTPUT_ALIAS_ONLY");
   }
 }
 
@@ -196,8 +218,11 @@ function planSelectList(selectList, ctx) {
     }
     if (!alias) throw new SafeError("SQL_DERIVED_ALIAS_REQUIRED");
     validateFunctions(expression, false);
+    const requiredCapabilities = expressionCapabilities(expression);
     for (const ref of findColumnRefs(expression, ctx)) {
-      if (ref.policy !== "visible") throw new SafeError("SQL_PROTECTED_COLUMN_IN_EXPRESSION");
+      for (const capability of requiredCapabilities) {
+        if (!hasCapability(ref, capability)) throw new SafeError("SQL_PROTECTED_COLUMN_IN_EXPRESSION");
+      }
     }
     addName(names, alias.name);
     outputColumns.push(alias.name);
@@ -205,6 +230,15 @@ function planSelectList(selectList, ctx) {
     transforms.push({ column: alias.name, type: "visible", sourcePolicy: "visible" });
   }
   return { outputColumns, sqlItems, transforms, columnsRemoved };
+}
+
+function expressionCapabilities(expression) {
+  const capabilities = new Set();
+  for (const match of expression.matchAll(/\b([A-Za-z_][A-Za-z0-9_]*)\s*\(/g)) {
+    if (AGG_FUNCS.has(match[1].toLowerCase())) capabilities.add("aggregate");
+  }
+  if (capabilities.size === 0) capabilities.add("expression");
+  return capabilities;
 }
 
 function addStarColumns({ object, policy, sqlAlias, outputAlias, outputColumns, sqlItems, transforms, columnsRemoved, names }) {

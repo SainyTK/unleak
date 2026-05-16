@@ -1,6 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { validateAndPlan } from "../scripts/lib/sql-policy-engine.mjs";
+import { validatePolicyAgainstSchema } from "../scripts/lib/policy.mjs";
 
 const schema = {
   connection: "x",
@@ -30,6 +31,7 @@ const policy = {
   connection: "x",
   objects: [{
     name: "orders",
+    type: "table",
     objectPolicy: "enabled",
     columns: [
       { name: "id", policy: "joinable" },
@@ -39,6 +41,7 @@ const policy = {
     ]
   }, {
     name: "customers",
+    type: "table",
     objectPolicy: "enabled",
     columns: [
       { name: "id", policy: "joinable" },
@@ -46,6 +49,7 @@ const policy = {
     ]
   }, {
     name: "audit_log",
+    type: "table",
     objectPolicy: "disabled",
     columns: [{ name: "id", policy: "joinable" }, { name: "secret_token", policy: "hidden" }]
   }]
@@ -113,9 +117,10 @@ test("expands table star and prefixes multi-object star headers", () => {
   assert(multiStar.columnsRemoved.includes("note"));
 });
 
-test("requires ORDER BY to use output aliases only", () => {
+test("allows direct visible ORDER BY columns and rejects ordinals", () => {
   assert.doesNotThrow(() => validateAndPlan("SELECT amount AS amount_out FROM orders ORDER BY amount_out", schema, policy));
-  assert.throws(() => validateAndPlan("SELECT amount AS amount_out FROM orders ORDER BY amount", schema, policy), /SQL_ORDER_BY_OUTPUT_ALIAS_ONLY/);
+  assert.doesNotThrow(() => validateAndPlan("SELECT amount AS amount_out FROM orders ORDER BY amount", schema, policy));
+  assert.throws(() => validateAndPlan("SELECT amount AS amount_out FROM orders ORDER BY 1", schema, policy), /SQL_ORDER_BY_ORDINAL_REJECTED/);
 });
 
 test("tracks simple CTE passthrough lineage", () => {
@@ -149,6 +154,73 @@ test("allows visible aggregates and scalar functions with aliases", () => {
   assert.deepEqual(aggregate.outputColumns, ["category", "total"]);
   const scalar = validateAndPlan("SELECT round(amount) AS rounded FROM orders", schema, policy);
   assert.deepEqual(scalar.outputColumns, ["rounded"]);
+});
+
+test("allows explicit capabilities to unlock safe analysis on transformed columns", () => {
+  const capabilityPolicy = {
+    ...policy,
+    objects: policy.objects.map((object) => object.name === "orders" ? {
+      ...object,
+      columns: object.columns.map((column) => {
+        if (column.name === "id") return { ...column, capabilities: ["select", "join", "group", "filter", "sort"] };
+        if (column.name === "customer_email") return { ...column, capabilities: ["select", "group", "filter"] };
+        return column;
+      })
+    } : object)
+  };
+
+  assert.doesNotThrow(() => validateAndPlan("SELECT id AS order_key, amount FROM orders WHERE id = 1 ORDER BY id", schema, capabilityPolicy));
+  assert.doesNotThrow(() => validateAndPlan("SELECT customer_email AS email_key, COUNT(*) AS total FROM orders WHERE customer_email LIKE '%@example.com' GROUP BY customer_email", schema, capabilityPolicy));
+  assert.throws(() => validateAndPlan("SELECT lower(customer_email) AS email_key FROM orders", schema, capabilityPolicy), /SQL_PROTECTED_COLUMN_IN_EXPRESSION/);
+});
+
+test("allows explicit aggregate and expression capabilities independently", () => {
+  const capabilityPolicy = {
+    ...policy,
+    objects: policy.objects.map((object) => object.name === "orders" ? {
+      ...object,
+      columns: object.columns.map((column) => column.name === "customer_email"
+        ? { ...column, capabilities: ["select", "group", "aggregate"] }
+        : column)
+    } : object)
+  };
+
+  assert.doesNotThrow(() => validateAndPlan("SELECT COUNT(customer_email) AS email_count FROM orders", schema, capabilityPolicy));
+  assert.throws(() => validateAndPlan("SELECT lower(customer_email) AS email_key FROM orders", schema, capabilityPolicy), /SQL_PROTECTED_COLUMN_IN_EXPRESSION/);
+});
+
+test("allows safe SQLite date and math functions used in analysis", () => {
+  const plan = validateAndPlan("SELECT strftime('%Y-%m', date('2026-05-20')) AS trade_month, abs(amount - 100) AS gap, amount / nullif(amount, 0) AS ratio FROM orders", schema, policy);
+  assert.deepEqual(plan.outputColumns, ["trade_month", "gap", "ratio"]);
+});
+
+test("validates explicit capability names and hidden-column constraints", () => {
+  assert.doesNotThrow(() => validatePolicyAgainstSchema({
+    ...policy,
+    policyVersion: 1,
+    objects: policy.objects.map((object) => object.name === "orders" ? {
+      ...object,
+      columns: object.columns.map((column) => column.name === "id" ? { ...column, capabilities: ["select", "join", "group", "filter", "sort"] } : column)
+    } : object)
+  }, schema));
+
+  assert.throws(() => validatePolicyAgainstSchema({
+    ...policy,
+    policyVersion: 1,
+    objects: policy.objects.map((object) => object.name === "orders" ? {
+      ...object,
+      columns: object.columns.map((column) => column.name === "id" ? { ...column, capabilities: ["select", "export"] } : column)
+    } : object)
+  }, schema), /POLICY_INVALID_COLUMN_CAPABILITIES/);
+
+  assert.throws(() => validatePolicyAgainstSchema({
+    ...policy,
+    policyVersion: 1,
+    objects: policy.objects.map((object) => object.name === "orders" ? {
+      ...object,
+      columns: object.columns.map((column) => column.name === "note" ? { ...column, capabilities: ["select"] } : column)
+    } : object)
+  }, schema), /POLICY_INVALID_COLUMN_CAPABILITIES/);
 });
 
 test("requires aggregate aliases and rejects aggregates over protected columns", () => {

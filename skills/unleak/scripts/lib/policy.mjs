@@ -2,6 +2,7 @@ import { SafeError } from "./errors.mjs";
 
 const OBJECT_POLICIES = new Set(["enabled", "disabled"]);
 const COLUMN_POLICIES = new Set(["visible", "hidden", "masked", "hashed", "joinable"]);
+const COLUMN_CAPABILITIES = new Set(["select", "filter", "group", "sort", "join", "aggregate", "expression"]);
 
 export function validatePolicyAgainstSchema(policy, schema) {
   if (!policy || policy.policyVersion !== 1 || policy.connection !== schema.connection || !Array.isArray(policy.objects)) {
@@ -19,6 +20,7 @@ export function validatePolicyAgainstSchema(policy, schema) {
     for (const column of object.columns || []) {
       if (!schemaColumns.has(column.name)) throw new SafeError("POLICY_UNKNOWN_COLUMN");
       if (!COLUMN_POLICIES.has(column.policy)) throw new SafeError("POLICY_INVALID_COLUMN_POLICY");
+      validateCapabilities(column);
       validateMaskOptions(column);
     }
     for (const schemaColumn of schemaObject.columns) {
@@ -29,6 +31,17 @@ export function validatePolicyAgainstSchema(policy, schema) {
     if (!policyObjects.has(schemaObject.name)) throw new SafeError("POLICY_MISSING_OBJECT");
   }
   return true;
+}
+
+function validateCapabilities(column) {
+  if (column.capabilities === undefined) return;
+  if (!Array.isArray(column.capabilities)) throw new SafeError("POLICY_INVALID_COLUMN_CAPABILITIES");
+  for (const capability of column.capabilities) {
+    if (!COLUMN_CAPABILITIES.has(capability)) throw new SafeError("POLICY_INVALID_COLUMN_CAPABILITIES");
+  }
+  if (column.policy === "hidden" && column.capabilities.some((capability) => capability !== "group")) {
+    throw new SafeError("POLICY_INVALID_COLUMN_CAPABILITIES");
+  }
 }
 
 function validateMaskOptions(column) {

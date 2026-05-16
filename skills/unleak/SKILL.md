@@ -87,12 +87,12 @@ When a schema and active policy exist for the requested connection, optimize for
 
 Policy-aware SQL rules:
 
-- `WHERE`, `HAVING`, `ORDER BY`, scalar expressions, and aggregate expressions may reference only `visible` columns.
-- `GROUP BY` may reference any column policy. Grouped protected values are still transformed or hidden according to their output policy.
+- `WHERE`, `HAVING`, `ORDER BY`, scalar expressions, and aggregate expressions may reference only columns with the matching capability. Without explicit `capabilities`, this keeps the legacy rule: only `visible` columns are allowed.
+- `GROUP BY` may reference any column policy by default. Grouped protected values are still transformed or hidden according to their output policy.
 - Direct `SELECT` may include non-hidden columns, but protected columns (`masked`, `hashed`, `joinable`) should not be used in filters, sorts, calculations, or aggregate expressions.
 - Join conditions may use equality between `visible` or `joinable` columns only.
 - Every derived expression must have an explicit alias, e.g. `COUNT(*) AS cnt`.
-- `ORDER BY` must use output aliases only, not ordinals and not raw expressions.
+- `ORDER BY` may use output aliases or direct sortable columns. Do not use ordinals or raw expressions.
 - Prefer qualified column names in joins, e.g. `t.company_id = lc.company_id`.
 - If validation fails, read the error code and adjust the SQL to use visible columns or simpler direct selections. Do not respond by proposing a new policy unless the user asked to update policy.
 
@@ -104,6 +104,13 @@ Column policy handling:
 - `joinable`: Intended for equality joins, direct pseudonymous selection, and grouped counts. May be used in `ON a.col = b.col` when both sides are `visible` or `joinable`. Do not filter, sort, aggregate, or calculate with it.
 - `hidden`: May be used only in `GROUP BY` when needed for counts. Never select it or reference it elsewhere.
 - `disabled` object: Never query it.
+
+Capability overrides:
+
+- Policies may add `capabilities` per column to allow analysis use without changing output transformation.
+- Valid capabilities: `select`, `filter`, `group`, `sort`, `join`, `aggregate`, `expression`.
+- Example: a hashed `account_id` can use `["select", "join", "group"]` for pseudonymous investigation, or add `filter`/`sort` only when policy owners explicitly allow that workflow.
+- Hidden columns may only declare `group`.
 
 ## Policy Updates
 

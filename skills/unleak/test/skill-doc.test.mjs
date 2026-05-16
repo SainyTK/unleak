@@ -43,12 +43,12 @@ test("SKILL.md documents the required Claude safety rules and workflow", () => {
     "Avoid `UNION` for table overviews",
     "Avoid parallel or chained query batches until each query shape has passed once",
     "run `--dry-run` first",
-    "`WHERE`, `HAVING`, `ORDER BY`, scalar expressions, and aggregate expressions may reference only `visible` columns",
+    "`WHERE`, `HAVING`, `ORDER BY`, scalar expressions, and aggregate expressions may reference only columns with the matching capability",
     "`GROUP BY` may reference any column policy",
     "Direct `SELECT` may include non-hidden columns",
     "Join conditions may use equality between `visible` or `joinable` columns only",
     "Every derived expression must have an explicit alias",
-    "`ORDER BY` must use output aliases only",
+    "`ORDER BY` may use output aliases or direct sortable columns",
     "Do not respond by proposing a new policy unless the user asked to update policy",
     "`visible`: Safe for normal analysis",
     "`masked`: May be selected directly when useful for display or grouped counts, but the output is transformed",
@@ -57,6 +57,7 @@ test("SKILL.md documents the required Claude safety rules and workflow", () => {
     "May be used in `ON a.col = b.col` when both sides are `visible` or `joinable`",
     "`hidden`: May be used only in `GROUP BY` when needed for counts",
     "`disabled` object: Never query it",
+    "Valid capabilities: `select`, `filter`, `group`, `sort`, `join`, `aggregate`, `expression`",
     "Policy can be updated only when the user explicitly asks to update, revise, expand, tighten, regenerate, or re-activate policy"
   ]) {
     assert(text.includes(required), `missing SKILL.md text: ${required}`);

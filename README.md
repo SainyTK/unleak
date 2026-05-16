@@ -129,6 +129,8 @@ The agent must not use raw database CLIs after setup, including `psql`, `rtk psq
 - `hidden`: use when the agent does not need the value. Hidden columns may be used only for grouped counts and must not be selected or referenced elsewhere. Examples: passwords, API keys, access tokens, private notes, sensitive free text.
 - disabled object: use for tables or views the agent should not query at all, even if some columns might look safe.
 
+Policies may add explicit `capabilities` to a column when the default type is too coarse for analysis. Valid capabilities are `select`, `filter`, `group`, `sort`, `join`, `aggregate`, and `expression`. This lets a policy owner allow, for example, a hashed `account_id` to be grouped, joined, filtered, or sorted without exposing the raw identifier. Existing policies without `capabilities` keep the default behavior above. Hidden columns may only declare `group`.
+
 ## SQL Scope
 
 Supported:
@@ -142,7 +144,7 @@ Supported:
 - simple `FROM` subqueries
 - `UNION` and `UNION ALL`
 - allowlisted scalar and aggregate functions
-- output-alias `ORDER BY`
+- output-alias and direct sortable-column `ORDER BY`
 - row caps
 
 Unsupported or conservative:

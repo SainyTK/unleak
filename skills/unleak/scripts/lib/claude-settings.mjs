@@ -25,7 +25,13 @@ export function installClaudeSettings(cwd = process.cwd()) {
 }
 
 export function requiredAllows() {
-  return ["Bash(node .claude/skills/unleak/scripts/*.mjs*)"];
+  return [
+    "Skill(unleak)",
+    "Bash(node .claude/skills/unleak/scripts/*.mjs*)",
+    "Write(.claude/skills/unleak/local/queries/*.sql)",
+    "Edit(.claude/skills/unleak/local/queries/*.sql)",
+    "MultiEdit(.claude/skills/unleak/local/queries/*.sql)"
+  ];
 }
 
 export function requiredDenies(cwd = process.cwd()) {

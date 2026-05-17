@@ -21,11 +21,14 @@ test("install-claude-settings creates and deduplicates deny rules", () => {
   const first = expectOk(run("install-claude-settings.mjs", [], { cwd }));
   const second = expectOk(run("install-claude-settings.mjs", [], { cwd }));
   const settings = JSON.parse(fs.readFileSync(settingsPath, "utf8"));
-  assert.equal(first.allowRulesAdded, 5);
+  assert.equal(first.allowRulesAdded, 8);
   assert.equal(second.allowRulesAdded, 0);
   assert(settings.permissions.allow.includes("Write(.claude/skills/unleak/local/queries/*.sql)"));
   assert(settings.permissions.allow.includes("Edit(.claude/skills/unleak/local/queries/*.sql)"));
   assert(settings.permissions.allow.includes("MultiEdit(.claude/skills/unleak/local/queries/*.sql)"));
+  assert(settings.permissions.allow.includes("Write(./unleak-policy-review/**)"));
+  assert(settings.permissions.allow.includes("Edit(./unleak-policy-review/**)"));
+  assert(settings.permissions.allow.includes("MultiEdit(./unleak-policy-review/**)"));
   assert.equal(first.denyRulesAdded, 21);
   assert.equal(second.denyRulesAdded, 0);
   assert(settings.permissions.deny.every((rule) => !/\((\/|[A-Za-z]:[\\/])/.test(rule)));

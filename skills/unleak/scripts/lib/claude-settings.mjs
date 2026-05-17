@@ -30,7 +30,10 @@ export function requiredAllows() {
     "Bash(node .claude/skills/unleak/scripts/*.mjs*)",
     "Write(.claude/skills/unleak/local/queries/*.sql)",
     "Edit(.claude/skills/unleak/local/queries/*.sql)",
-    "MultiEdit(.claude/skills/unleak/local/queries/*.sql)"
+    "MultiEdit(.claude/skills/unleak/local/queries/*.sql)",
+    "Write(./unleak-policy-review/**)",
+    "Edit(./unleak-policy-review/**)",
+    "MultiEdit(./unleak-policy-review/**)"
   ];
 }
 

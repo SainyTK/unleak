@@ -1,31 +1,46 @@
 #!/usr/bin/env node
 import fs from "node:fs";
 import { main, SafeError } from "./lib/errors.mjs";
-import { loadConfig, getConnection } from "./lib/config.mjs";
+import { assertBigQuerySchemaName, bigQueryOptions, loadConfig, getConnection } from "./lib/config.mjs";
 import { backupIfExists, writeJson } from "./lib/fs-json.mjs";
-import { schemaBackupDir, schemaPath } from "./lib/paths.mjs";
+import { schemaBackupDir, schemaPath, scopeKey } from "./lib/paths.mjs";
 import { parseArgs } from "./lib/args.mjs";
 import { assertDependenciesReady } from "./lib/readiness.mjs";
 
 let openSqlite;
 let withPostgres;
+let withBigQuery;
 
 main(async () => {
   assertDependenciesReady();
-  ({ openSqlite, withPostgres } = await import("./lib/db.mjs"));
+  ({ openSqlite, withPostgres, withBigQuery } = await import("./lib/db.mjs"));
   const args = parseArgs();
   const config = loadConfig();
   const connections = args.connection ? [getConnection(config, args.connection)] : config.connections;
   const written = [];
   for (const connection of connections) {
-    const schema = connection.dialect === "sqlite" ? dumpSqlite(connection) : await dumpPostgres(connection);
-    const target = schemaPath(connection.name);
-    backupIfExists(target, schemaBackupDir);
-    writeJson(target, schema);
-    written.push({ connection: connection.name, path: target });
+    const schemas = await dumpConnection(config, connection, args.schema);
+    for (const schema of schemas) {
+      const target = schemaPath(schema.connection, schema.schema);
+      backupIfExists(target, schemaBackupDir);
+      writeJson(target, schema);
+      written.push({ connection: schema.connection, ...(schema.schema ? { schema: schema.schema, scope: schema.scope } : {}), path: target });
+    }
   }
   return { schemas: written };
 });
+
+async function dumpConnection(config, connection, schemaName = undefined) {
+  if (connection.dialect === "sqlite") {
+    if (schemaName) throw new SafeError("SCHEMA_UNSUPPORTED");
+    return [dumpSqlite(connection)];
+  }
+  if (connection.dialect === "postgres") {
+    if (schemaName && schemaName !== "public") throw new SafeError("SCHEMA_UNSUPPORTED");
+    return [await dumpPostgres(connection)];
+  }
+  return dumpBigQuery(config, connection, schemaName);
+}
 
 function dumpSqlite(connection) {
   const db = openSqlite(connection, true);
@@ -111,10 +126,75 @@ async function dumpPostgres(connection) {
   });
 }
 
-function baseSchema(connection, objects) {
+async function dumpBigQuery(config, connection, schemaName = undefined) {
+  if (schemaName) assertBigQuerySchemaName(schemaName);
+  return withBigQuery(connection, async (client) => {
+    try {
+      const datasetIds = schemaName ? [schemaName] : await listBigQueryDatasets(client);
+      const options = bigQueryOptions(config, connection);
+      if (!schemaName && datasetIds.length > options.maxDatasetsPerSchemaDump) {
+        throw new SafeError("BIGQUERY_DATASET_LIMIT_EXCEEDED", "BigQuery dataset count exceeds configured limit.", {
+          count: datasetIds.length,
+          limit: options.maxDatasetsPerSchemaDump,
+          hint: "Use --schema <dataset> to dump one dataset."
+        });
+      }
+      const schemas = [];
+      for (const datasetId of datasetIds) {
+        assertBigQuerySchemaName(datasetId);
+        schemas.push(await dumpBigQueryDataset(client, connection, datasetId));
+      }
+      return schemas;
+    } catch (error) {
+      if (error instanceof SafeError) throw error;
+      throw new SafeError(schemaName ? "SCHEMA_DUMP_FAILED" : "BIGQUERY_SCHEMA_DUMP_FAILED");
+    }
+  });
+}
+
+async function listBigQueryDatasets(client) {
+  const datasetIds = [];
+  let query = { autoPaginate: false };
+  do {
+    const [datasets, nextQuery] = await client.getDatasets(query);
+    for (const dataset of datasets) datasetIds.push(dataset.id);
+    query = nextQuery;
+  } while (query);
+  return datasetIds;
+}
+
+async function dumpBigQueryDataset(client, connection, datasetId) {
+  const [tables] = await client.dataset(datasetId).getTables();
+  const objects = [];
+  for (const table of tables) {
+    const [metadata] = await table.getMetadata();
+    const type = metadata.type === "VIEW" ? "view" : "table";
+    objects.push({
+      name: table.id,
+      type,
+      columns: (metadata.schema?.fields || []).map((field) => ({
+        name: field.name,
+        dataType: field.type || "unknown",
+        nullable: field.mode !== "REQUIRED"
+      }))
+    });
+  }
+  objects.sort((left, right) => left.name.localeCompare(right.name));
+  return baseSchema(connection, objects, datasetId);
+}
+
+function baseSchema(connection, objects, schema = undefined) {
   return {
     schemaVersion: 1,
     connection: connection.name,
+    ...(schema ? {
+      schema,
+      scope: scopeKey(connection.name, schema),
+      namespace: {
+        projectId: connection.credentials.projectId,
+        datasetId: schema
+      }
+    } : {}),
     dialect: connection.dialect,
     generatedAt: new Date().toISOString(),
     objects

@@ -1,7 +1,9 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { validateAndPlan } from "../scripts/lib/sql-policy-engine.mjs";
+import { validateAndPlan, qualifyBigQuerySql } from "../scripts/lib/sql-policy-engine.mjs";
 import { validatePolicyAgainstSchema } from "../scripts/lib/policy.mjs";
+import { assertBigQueryBytesWithinLimit, normalizeBigQueryValue } from "../scripts/lib/db.mjs";
+import { activePolicyPath, proposalPath, schemaPath, scopeKey } from "../scripts/lib/paths.mjs";
 
 const schema = {
   connection: "x",
@@ -298,4 +300,99 @@ test("allows visible WHERE literals, LIKE, IN, and selected literals with aliase
 test("rejects unsupported set operators", () => {
   assert.throws(() => validateAndPlan("SELECT amount FROM orders INTERSECT SELECT amount FROM orders", schema, policy), /SQL_SET_OPERATOR_UNSUPPORTED/);
   assert.throws(() => validateAndPlan("SELECT amount FROM orders EXCEPT SELECT amount FROM orders", schema, policy), /SQL_SET_OPERATOR_UNSUPPORTED/);
+});
+
+test("uses BigQuery schema scope in paths and policy validation", () => {
+  const scopedSchema = { ...schema, schema: "sales", scope: "x__sales" };
+  const scopedPolicy = { ...policy, policyVersion: 1, schema: "sales", scope: "x__sales" };
+  assert.equal(scopeKey("x", "sales"), "x__sales");
+  assert.equal(schemaPath("x", "sales").endsWith("x__sales.schema.json"), true);
+  assert.equal(activePolicyPath("x", "sales").endsWith("x__sales.json"), true);
+  assert.equal(proposalPath("/tmp/project", "x", "sales").endsWith("unleak-policy-review/x__sales.policy.proposed.json"), true);
+  assert.doesNotThrow(() => validatePolicyAgainstSchema(scopedPolicy, scopedSchema));
+  assert.throws(() => validatePolicyAgainstSchema({ ...scopedPolicy, schema: "finance" }, scopedSchema), /POLICY_INVALID/);
+});
+
+test("qualifies BigQuery local table names without touching CTE names", () => {
+  const bqSchema = {
+    ...schema,
+    dialect: "bigquery",
+    schema: "sales",
+    scope: "x__sales",
+    namespace: { projectId: "project-a", datasetId: "sales" }
+  };
+  const plan = validateAndPlan(
+    "WITH recent AS (SELECT amount FROM orders) SELECT r.amount FROM recent r JOIN customers c ON r.amount = c.status",
+    bqSchema,
+    policy,
+    { dialect: "bigquery" }
+  );
+  const sql = qualifyBigQuerySql(plan.rewrittenSql, bqSchema);
+  assert.match(sql, /FROM `project-a\.sales\.orders` AS orders/);
+  assert.match(sql, /FROM recent r JOIN `project-a\.sales\.customers` AS c/);
+});
+
+test("BigQuery qualification preserves clause keywords after table names", () => {
+  const bqSchema = {
+    ...schema,
+    dialect: "bigquery",
+    schema: "sales",
+    scope: "x__sales",
+    namespace: { projectId: "project-a", datasetId: "sales" }
+  };
+  const cases = [
+    [
+      "SELECT amount FROM orders LIMIT 3",
+      /FROM `project-a\.sales\.orders` AS orders LIMIT 3/
+    ],
+    [
+      "SELECT amount FROM orders WHERE amount = 1",
+      /FROM `project-a\.sales\.orders` AS orders WHERE amount = 1/
+    ],
+    [
+      "SELECT amount FROM orders ORDER BY amount LIMIT 5",
+      /FROM `project-a\.sales\.orders` AS orders ORDER BY amount LIMIT 5/
+    ],
+    [
+      "SELECT amount, COUNT(*) AS cnt FROM orders GROUP BY amount",
+      /FROM `project-a\.sales\.orders` AS orders GROUP BY amount/
+    ],
+    [
+      "SELECT amount AS value FROM orders UNION ALL SELECT amount AS value FROM orders",
+      /FROM `project-a\.sales\.orders` AS orders UNION ALL SELECT `orders`\.`amount` AS `value` FROM `project-a\.sales\.orders` AS orders/
+    ]
+  ];
+
+  for (const [rawSql, expected] of cases) {
+    const plan = validateAndPlan(rawSql, bqSchema, policy, { dialect: "bigquery" });
+    assert.match(qualifyBigQuerySql(plan.rewrittenSql, bqSchema), expected, rawSql);
+  }
+});
+
+test("rejects unsupported BigQuery table reference forms", () => {
+  const bqSchema = {
+    ...schema,
+    dialect: "bigquery",
+    schema: "sales",
+    scope: "x__sales",
+    namespace: { projectId: "project-a", datasetId: "sales" }
+  };
+  for (const sql of [
+    "SELECT amount FROM `project-a.sales.orders`",
+    "SELECT amount FROM sales.orders",
+    "SELECT amount FROM events_*",
+    "SELECT amount FROM orders@1234567890",
+    "SELECT amount FROM orders FOR SYSTEM_TIME AS OF TIMESTAMP '2026-05-20'"
+  ]) {
+    assert.throws(() => validateAndPlan(sql, bqSchema, policy, { dialect: "bigquery" }), /BIGQUERY_.*UNSUPPORTED|SQL_INVALID/, sql);
+  }
+});
+
+test("BigQuery cost guard and value normalization are deterministic", () => {
+  assert.doesNotThrow(() => assertBigQueryBytesWithinLimit(10, 10));
+  assert.throws(() => assertBigQueryBytesWithinLimit(11, 10), { code: "BIGQUERY_BYTES_LIMIT_EXCEEDED" });
+  assert.equal(normalizeBigQueryValue({ value: "2026-05-20" }), "2026-05-20");
+  assert.equal(normalizeBigQueryValue(123n), "123");
+  assert.equal(normalizeBigQueryValue([{ a: 1 }, { a: 2n }]), "[{\"a\":1},{\"a\":\"2\"}]");
+  assert.equal(normalizeBigQueryValue({ nested: { a: 1 } }), "{\"nested\":{\"a\":1}}");
 });

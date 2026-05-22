@@ -4,7 +4,7 @@ import { createRequire } from "node:module";
 import { SafeError } from "./errors.mjs";
 import { skillRoot } from "./paths.mjs";
 
-const REQUIRED_PACKAGES = ["better-sqlite3", "pg", "node-sql-parser"];
+const REQUIRED_PACKAGES = ["better-sqlite3", "pg", "node-sql-parser", "@google-cloud/bigquery"];
 const MIN_NODE_MAJOR = 18;
 
 export function assertDependenciesReady(root = skillRoot) {

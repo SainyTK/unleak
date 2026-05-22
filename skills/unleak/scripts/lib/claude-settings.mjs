@@ -62,6 +62,8 @@ export function requiredDenies(cwd = process.cwd()) {
     "Bash(rtk psql*)",
     "Bash(sqlite3*)",
     "Bash(rtk sqlite3*)",
+    "Bash(bq*)",
+    "Bash(rtk bq*)",
     "Edit(.claude/settings.json)",
     "MultiEdit(.claude/settings.json)",
     "Write(.claude/settings.json)"

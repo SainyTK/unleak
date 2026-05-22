@@ -8,6 +8,8 @@ export function proposePolicy(schema) {
   return {
     policyVersion: 1,
     connection: schema.connection,
+    ...(schema.schema ? { schema: schema.schema } : {}),
+    ...(schema.scope ? { scope: schema.scope } : {}),
     generatedAt: new Date().toISOString(),
     objects: schema.objects.map((object) => ({
       name: object.name,

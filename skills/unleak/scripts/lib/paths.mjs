@@ -9,16 +9,20 @@ export const schemaBackupDir = path.join(schemaDir, ".backups");
 export const activePolicyDir = path.join(localDir, "active-policies");
 export const activePolicyBackupDir = path.join(activePolicyDir, ".backups");
 
-export function schemaPath(connection) {
-  return path.join(schemaDir, `${connection}.schema.json`);
+export function scopeKey(connection, schema = undefined) {
+  return schema ? `${connection}__${schema}` : connection;
 }
 
-export function activePolicyPath(connection) {
-  return path.join(activePolicyDir, `${connection}.json`);
+export function schemaPath(connection, schema = undefined) {
+  return path.join(schemaDir, `${scopeKey(connection, schema)}.schema.json`);
 }
 
-export function proposalPath(cwd, connection) {
-  return path.join(cwd, "unleak-policy-review", `${connection}.policy.proposed.json`);
+export function activePolicyPath(connection, schema = undefined) {
+  return path.join(activePolicyDir, `${scopeKey(connection, schema)}.json`);
+}
+
+export function proposalPath(cwd, connection, schema = undefined) {
+  return path.join(cwd, "unleak-policy-review", `${scopeKey(connection, schema)}.policy.proposed.json`);
 }
 
 export function relFromCwd(target, cwd = process.cwd()) {

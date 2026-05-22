@@ -19,7 +19,7 @@
 
 ---
 
-`unleak` is a self-contained Agent Skill for database work. It helps AI agents answer useful questions about local SQLite and Postgres data without sending raw credentials or unrestricted sensitive columns into the model context.
+`unleak` is a self-contained Agent Skill for database work. It helps AI agents answer useful questions about SQLite, Postgres, and BigQuery data without sending raw credentials or unrestricted sensitive columns into the model context.
 
 The core idea is simple: decide column by column what the agent actually needs. Safe values can be shown directly, personal data can be masked, identifiers can be hashed or used only for joins, and unnecessary secrets can be hidden.
 
@@ -32,8 +32,8 @@ This is leakage reduction, not a sandbox. Agent permissions and the query policy
 - Applies table and column policies before query results are shown to the agent.
 - Reduces accidental leakage by masking, hashing, omitting, or blocking protected fields.
 - Lets users review and activate policy changes explicitly before they affect access.
-- Routes reads through deterministic scripts instead of raw database CLI access, including `psql` and `sqlite3`.
-- Supports everyday analysis workflows for SQLite and Postgres.
+- Routes reads through deterministic scripts instead of raw database CLI access, including `psql`, `sqlite3`, and `bq`.
+- Supports everyday analysis workflows for SQLite, Postgres, and BigQuery.
 
 ## Install
 
@@ -85,6 +85,7 @@ Then edit the config locally:
 - keep only the connections you need
 - set SQLite database paths
 - set Postgres host, port, database name, username, and password
+- for BigQuery, run `gcloud auth application-default login`, then manually copy the ADC JSON into `credentials.adc` and set `credentials.projectId`
 
 After the agent proposes and validates a policy, activate it manually:
 
@@ -103,6 +104,14 @@ After setup is complete, including database config and an active policy, users c
 
 The agent will use the skill to inspect schema and run approved `SELECT` queries. The active policy controls access at the column level, so restricted data is hidden, masked, hashed, or limited to join use before results reach the model.
 
+BigQuery uses one policy scope per dataset. Dump all datasets with `dump-schema.mjs --connection <connection>` or one dataset with `--schema <dataset>`. Query BigQuery with both connection and dataset:
+
+```bash
+node .claude/skills/unleak/scripts/query.mjs --connection warehouse_bq --schema sales --sql "SELECT amount FROM orders"
+```
+
+BigQuery SQL uses local table names only, such as `FROM orders` and `JOIN customers c`. Unleak qualifies the physical BigQuery table after policy validation and performs a dry run before execution. Set the cost cap with `connection.options.maxBytesBilled`.
+
 Policies can be updated later. Users may edit the policy manually or ask the agent to help revise it, explain tradeoffs, and validate the proposal. The agent still cannot activate the update automatically; the user must explicitly run the activation command to prevent accidental policy changes.
 
 ## Safety Model
@@ -117,7 +126,7 @@ The agent must not read or edit:
 
 The agent must not run `activate-policy.mjs`. Activation is a manual user action.
 
-The agent must not use raw database CLIs after setup, including `psql`, `rtk psql`, `sqlite3`, or `rtk sqlite3`.
+The agent must not use raw database CLIs after setup, including `psql`, `rtk psql`, `sqlite3`, `rtk sqlite3`, `bq`, or `rtk bq`. Users may run `gcloud auth application-default login`; agents must not read ADC source files or `unleak/local/db-conf.json`.
 
 
 ## Policy Types
@@ -162,8 +171,12 @@ Unsupported or conservative:
 ```bash
 cd skills/unleak
 bun run test
+bun run test:agent:fixture
+bun run test:agent:preflight
 bun run test:postgres
 bun run test:postgres:active
 ```
 
 The default test run skips local Postgres integration. Use `bun run test:postgres` when local Postgres is available. After manually activating `sales_pg`, use `bun run test:postgres:active` to verify the active Postgres policy path.
+
+SQLite agent evals live under `test/agent-evals/`. `bun run test:agent:fixture` validates the realistic retail dataset and active policy without calling an external agent. `bun run test:agent:preflight` checks local Claude/Codex auth and reachability. Use `bun run test:agent:claude`, `bun run test:agent:codex`, or `bun run test:agent:sqlite` for real agent transcript checks. Failures save the prompt, transcript, extracted commands, and diagnosis under `test/agent-evals/failures/`.

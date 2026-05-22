@@ -24,12 +24,12 @@ main(async () => {
   if (!input) throw new SafeError("POLICY_FILE_REQUIRED");
   const proposalPath = path.resolve(process.cwd(), input);
   const policy = readJson(proposalPath, "POLICY_NOT_FOUND", "POLICY_INVALID");
-  const schema = readJson(schemaPath(policy.connection), "SCHEMA_NOT_FOUND", "SCHEMA_INVALID");
+  const schema = readJson(schemaPath(policy.connection, policy.schema), "SCHEMA_NOT_FOUND", "SCHEMA_INVALID");
   validatePolicyAgainstSchema(policy, schema);
   const active = { ...policy, activatedAt: new Date().toISOString() };
-  const target = activePolicyPath(policy.connection);
+  const target = activePolicyPath(policy.connection, policy.schema);
   const backupPath = backupIfExists(target, activePolicyBackupDir);
   writeJson(target, active);
   const removedReviewDir = cleanupProposal(proposalPath);
-  return { connection: policy.connection, activePolicyPath: target, backupPath, removedProposalPath: proposalPath, removedReviewDir };
+  return { connection: policy.connection, ...(policy.schema ? { schema: policy.schema, scope: policy.scope } : {}), activePolicyPath: target, backupPath, removedProposalPath: proposalPath, removedReviewDir };
 });

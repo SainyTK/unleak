@@ -9,15 +9,17 @@ import { proposePolicy } from "./lib/propose.mjs";
 
 main(async () => {
   const args = parseArgs();
-  const schemaFiles = args.connection ? [schemaPath(args.connection)] : fs.readdirSync(schemaDir).filter((file) => file.endsWith(".schema.json")).map((file) => path.join(schemaDir, file));
+  const schemaFiles = args.connection
+    ? [schemaPath(args.connection, args.schema)]
+    : fs.readdirSync(schemaDir).filter((file) => file.endsWith(".schema.json")).map((file) => path.join(schemaDir, file));
   if (schemaFiles.length === 0) throw new SafeError("SCHEMA_NOT_FOUND");
   const proposals = [];
   for (const file of schemaFiles) {
     const schema = readJson(file, "SCHEMA_NOT_FOUND", "SCHEMA_INVALID");
-    const target = proposalPath(process.cwd(), schema.connection);
+    const target = proposalPath(process.cwd(), schema.connection, schema.schema);
     if (fs.existsSync(target) && !args.force) throw new SafeError("PROPOSAL_EXISTS");
     writeJson(target, proposePolicy(schema));
-    proposals.push({ connection: schema.connection, path: target });
+    proposals.push({ connection: schema.connection, ...(schema.schema ? { schema: schema.schema, scope: schema.scope } : {}), path: target });
   }
   return { proposals };
 });

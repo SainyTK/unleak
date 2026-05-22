@@ -8,6 +8,8 @@ const BAD_SQL = /\b(insert|update|delete|create|alter|drop|truncate|merge|begin|
 const CLAUSE_NAMES = ["where", "group by", "having", "order by"];
 const AGG_FUNCS = new Set(["count", "sum", "avg", "min", "max"]);
 const SCALAR_FUNCS = new Set(["abs", "cast", "coalesce", "date", "date_trunc", "julianday", "lower", "nullif", "round", "strftime", "upper"]);
+const BIGQUERY_ALIAS_KEYWORDS = "on|where|join|left|right|inner|outer|full|cross|group|order|having|limit|union|select|by";
+const BIGQUERY_TABLE_REF = new RegExp(`\\b(from|join)\\s+([A-Za-z_][A-Za-z0-9_]*)(?:\\s+(?:as\\s+)?(?!(${BIGQUERY_ALIAS_KEYWORDS})\\b)([A-Za-z_][A-Za-z0-9_]*))?`, "gi");
 
 export function stripSqlComments(sql) {
   return String(sql || "")
@@ -16,17 +18,18 @@ export function stripSqlComments(sql) {
     .trim();
 }
 
-export function validateAndPlan(sql, schema, policy) {
+export function validateAndPlan(sql, schema, policy, options = {}) {
   const cleanSql = stripSqlComments(sql).replace(/;\s*$/, "").trim();
   if (!cleanSql) throw new SafeError("SQL_REQUIRED");
   if ((cleanSql.match(/;/g) || []).length > 0) throw new SafeError("SQL_MULTIPLE_STATEMENTS");
   if (BAD_SQL.test(cleanSql)) throw new SafeError("SQL_FORBIDDEN_STATEMENT");
-  parseSelect(cleanSql);
+  if (options.dialect === "bigquery") validateBigQuerySqlSubset(cleanSql);
+  parseSelect(cleanSql, options.dialect);
   if (/\b(intersect|except)\b/i.test(cleanSql)) throw new SafeError("SQL_SET_OPERATOR_UNSUPPORTED");
-  if (/\bunion(?:\s+all)?\b/i.test(cleanSql)) return validateUnion(cleanSql, schema, policy);
+  if (/\bunion(?:\s+all)?\b/i.test(cleanSql)) return validateUnion(cleanSql, schema, policy, options);
 
-  const { sqlWithoutCtes, ctes } = extractCtes(cleanSql, schema, policy);
-  const { contextSql, subqueries } = extractFromSubqueries(sqlWithoutCtes, schema, policy);
+  const { sqlWithoutCtes, ctes } = extractCtes(cleanSql, schema, policy, options);
+  const { contextSql, subqueries } = extractFromSubqueries(sqlWithoutCtes, schema, policy, options);
   for (const [name, subquery] of subqueries) ctes.set(name, subquery);
   const ctx = buildContext(contextSql, schema, policy, ctes);
   validateForbiddenObjectMentions(cleanSql, ctx);
@@ -48,10 +51,10 @@ export function validateAndPlan(sql, schema, policy) {
   };
 }
 
-function validateUnion(sql, schema, policy) {
+function validateUnion(sql, schema, policy, options = {}) {
   const unionParts = splitUnion(sql);
   if (unionParts.length < 2) throw new SafeError("SQL_INVALID");
-  const plans = unionParts.map((part) => validateAndPlan(part.sql, schema, policy));
+  const plans = unionParts.map((part) => validateAndPlan(part.sql, schema, policy, options));
   const first = plans[0];
   for (const plan of plans.slice(1)) {
     if (JSON.stringify(plan.outputColumns) !== JSON.stringify(first.outputColumns)) throw new SafeError("SQL_UNION_OUTPUT_MISMATCH");
@@ -66,15 +69,49 @@ function validateUnion(sql, schema, policy) {
   return { ...first, rewrittenSql };
 }
 
-function parseSelect(sql) {
+function parseSelect(sql, dialect = undefined) {
   try {
-    const ast = parser.astify(sql, { database: "postgresql" });
+    const ast = parser.astify(sql, { database: parserDialect(dialect) });
     const roots = Array.isArray(ast) ? ast : [ast];
     if (roots.length !== 1 || roots[0].type !== "select") throw new SafeError("SQL_SELECT_ONLY");
   } catch (error) {
     if (error instanceof SafeError) throw error;
     throw new SafeError("SQL_INVALID");
   }
+}
+
+export function qualifyBigQuerySql(sql, schema) {
+  if (!schema.namespace?.projectId || !schema.namespace?.datasetId) throw new SafeError("SCHEMA_INVALID");
+  validateBigQuerySqlSubset(sql);
+  const qualified = sql.replace(BIGQUERY_TABLE_REF, (full, keyword, table, _reserved, alias) => {
+    const nextAlias = alias || table;
+    if (!schema.objects.some((object) => object.name === table)) return full;
+    return `${keyword} \`${escapeBacktick(schema.namespace.projectId)}.${escapeBacktick(schema.namespace.datasetId)}.${escapeBacktick(table)}\` AS ${nextAlias}`;
+  });
+  return qualified.replace(/"([^"]+)"/g, (_match, ident) => `\`${ident.replaceAll("`", "``")}\``);
+}
+
+function validateBigQuerySqlSubset(sql) {
+  if (/`/.test(sql)) throw new SafeError("BIGQUERY_QUALIFIED_TABLE_UNSUPPORTED");
+  if (/\bfor\s+system_time\s+as\s+of\b/i.test(sql)) throw new SafeError("BIGQUERY_SYSTEM_TIME_UNSUPPORTED");
+  const refs = sql.matchAll(/\b(from|join)\s+([^\s(),]+)(?:\s+(?:as\s+)?([A-Za-z_][A-Za-z0-9_]*))?/gi);
+  for (const match of refs) {
+    const table = match[2];
+    if (table.includes(".")) throw new SafeError("BIGQUERY_QUALIFIED_TABLE_UNSUPPORTED");
+    if (table.includes("*")) throw new SafeError("BIGQUERY_WILDCARD_TABLE_UNSUPPORTED");
+    if (table.includes("@")) throw new SafeError("BIGQUERY_TABLE_DECORATOR_UNSUPPORTED");
+    if (!/^[A-Za-z_][A-Za-z0-9_]*$/.test(table)) throw new SafeError("BIGQUERY_TABLE_NAME_UNSUPPORTED");
+  }
+}
+
+function parserDialect(dialect) {
+  if (dialect === "bigquery") return "bigquery";
+  if (dialect === "postgres") return "postgresql";
+  return "postgresql";
+}
+
+function escapeBacktick(value) {
+  return String(value).replaceAll("`", "``");
 }
 
 function buildContext(sql, schema, policy, ctes = new Map()) {
@@ -347,7 +384,7 @@ function isDistinctSelect(sql) {
   return /^\s*distinct\s+/i.test(sql.slice(selectIdx + 6, fromIdx));
 }
 
-function extractCtes(sql, schema, policy) {
+function extractCtes(sql, schema, policy, options = {}) {
   if (!/^\s*with\s/i.test(sql)) return { sqlWithoutCtes: sql, ctes: new Map() };
   let i = sql.search(/\bwith\b/i) + 4;
   const ctes = new Map();
@@ -375,7 +412,7 @@ function extractCtes(sql, schema, policy) {
     }
     if (depth !== 0) throw new SafeError("SQL_CTE_UNSUPPORTED");
     const innerSql = sql.slice(start, i - 1);
-    const innerPlan = validateAndPlan(innerSql, schema, policy);
+    const innerPlan = validateAndPlan(innerSql, schema, policy, options);
     ctes.set(name, cteFromPlan(name, innerPlan));
     const rest = sql.slice(i);
     if (/^\s*,/.test(rest)) continue;
@@ -384,7 +421,7 @@ function extractCtes(sql, schema, policy) {
   throw new SafeError("SQL_CTE_UNSUPPORTED");
 }
 
-function extractFromSubqueries(sql, schema, policy) {
+function extractFromSubqueries(sql, schema, policy, options = {}) {
   let contextSql = "";
   const subqueries = new Map();
   let i = 0;
@@ -418,7 +455,7 @@ function extractFromSubqueries(sql, schema, policy) {
     const aliasMatch = sql.slice(i).match(/^\s+(?:as\s+)?([A-Za-z_][A-Za-z0-9_]*)/i);
     if (!aliasMatch) throw new SafeError("SQL_SUBQUERY_ALIAS_REQUIRED");
     const alias = aliasMatch[1];
-    const innerPlan = validateAndPlan(innerSql, schema, policy);
+    const innerPlan = validateAndPlan(innerSql, schema, policy, options);
     subqueries.set(alias, cteFromPlan(alias, innerPlan));
     contextSql += alias;
     i += aliasMatch[0].length;

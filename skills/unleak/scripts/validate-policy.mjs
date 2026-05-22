@@ -14,9 +14,9 @@ main(async () => {
   const validated = [];
   for (const file of files) {
     const policy = readJson(file, "POLICY_NOT_FOUND", "POLICY_INVALID");
-    const schema = readJson(schemaPath(policy.connection), "SCHEMA_NOT_FOUND", "SCHEMA_INVALID");
+    const schema = readJson(schemaPath(policy.connection, policy.schema), "SCHEMA_NOT_FOUND", "SCHEMA_INVALID");
     validatePolicyAgainstSchema(policy, schema);
-    validated.push({ connection: policy.connection, path: file });
+    validated.push({ connection: policy.connection, ...(policy.schema ? { schema: policy.schema, scope: policy.scope } : {}), path: file });
   }
   return { validated };
 });

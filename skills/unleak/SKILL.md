@@ -1,6 +1,6 @@
 ---
 name: unleak
-description: MUST use this skill when installed and users ask to query, inspect, or run SELECT statements against SQLite or Postgres databases. Always route database reads through Unleak when a project contains an unleak/ folder, or when users ask to list database connections, inspect schemas, propose or validate access policies, activate policies, or query approved database data with leakage guardrails. This skill prevents direct credential, policy, schema, and raw database CLI access.
+description: MUST use this skill when installed and users ask to query, inspect, or run SELECT statements against SQLite, Postgres, or BigQuery databases. Always route database reads through Unleak when a project contains an unleak/ folder, or when users ask to list database connections, inspect schemas, propose or validate access policies, activate policies, or query approved database data with leakage guardrails. This skill prevents direct credential, policy, schema, and raw database CLI access.
 compatibility: Requires Node.js and run `npm install` before using this skill.
 ---
 
@@ -11,6 +11,7 @@ Use `unleak` for database questions only when the current project has an `unleak
 ## Rules
 
 - Never read or edit `unleak/local/db-conf.json`.
+- Never read ADC source files.
 - Never edit `unleak/scripts/**`, `unleak/local/schema/**`, or `unleak/local/active-policies/**`.
 - Never run `activate-policy.mjs`; only suggest the manual command with `!node`.
 - Never use raw database CLIs when `unleak` is configured.
@@ -51,6 +52,7 @@ Important cwd rule:
    - Keep and configure only the connections they need.
    - For SQLite, set the database file path.
    - For Postgres, set host, port, dbname, username, and password.
+   - For BigQuery, users may run `gcloud auth application-default login`, then manually paste ADC JSON into `credentials.adc` and set `credentials.projectId`. Service account JSON is supported for advanced or CI use.
 5. When the user says the config is saved, rerun:
    `node .claude/skills/unleak/scripts/list-connections.mjs`
 6. Install deny rules if needed:
@@ -67,6 +69,8 @@ Important cwd rule:
    `!node .claude/skills/unleak/scripts/activate-policy.mjs ./unleak-policy-review/<connection>.policy.proposed.json`
 13. Query approved data:
     `node .claude/skills/unleak/scripts/query.mjs --connection <name> --sql "SELECT ..."`
+    For BigQuery, include dataset schema:
+    `node .claude/skills/unleak/scripts/query.mjs --connection <name> --schema <dataset> --sql "SELECT ..."`
 
 ## Initialized Query Playbook
 
@@ -84,6 +88,7 @@ When a schema and active policy exist for the requested connection, optimize for
 5. Avoid `UNION` for table overviews. Run simple count queries separately instead.
 6. Avoid parallel or chained query batches until each query shape has passed once. One failed query can cancel useful follow-up work.
 7. For non-trivial queries, run `--dry-run` first, then run the same SQL without `--dry-run` after it validates.
+8. For BigQuery, always use local table names only, such as `FROM orders` or `JOIN customers c`. Do not use fully qualified names, dataset-qualified names, wildcard tables, decorators, or system-time queries. BigQuery dry-run cost checks run automatically.
 
 Policy-aware SQL rules:
 

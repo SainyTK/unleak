@@ -10,9 +10,15 @@
     "setup:config": "node scripts/init-config.mjs",
     "test:workflow": "node test/workflow.test.mjs",
     "test:postgres": "node test/run-tests.mjs --postgres",
-    "test:postgres:active": "node test/run-tests.mjs --postgres-active"
+    "test:postgres:active": "node test/run-tests.mjs --postgres-active",
+    "test:agent:fixture": "node test/agent-evals/run-agent-evals.mjs --agent fixture",
+    "test:agent:preflight": "node test/agent-evals/run-agent-evals.mjs --agent all --preflight",
+    "test:agent:claude": "node test/agent-evals/run-agent-evals.mjs --agent claude",
+    "test:agent:codex": "node test/agent-evals/run-agent-evals.mjs --agent codex",
+    "test:agent:sqlite": "node test/agent-evals/run-agent-evals.mjs --agent all"
   },
   "dependencies": {
+    "@google-cloud/bigquery": "^8.3.1",
     "better-sqlite3": "^12.4.6",
     "node-sql-parser": "^5.3.13",
     "pg": "^8.16.3"

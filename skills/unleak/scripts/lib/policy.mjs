@@ -8,6 +8,8 @@ export function validatePolicyAgainstSchema(policy, schema) {
   if (!policy || policy.policyVersion !== 1 || policy.connection !== schema.connection || !Array.isArray(policy.objects)) {
     throw new SafeError("POLICY_INVALID");
   }
+  if ((schema.schema || policy.schema) && policy.schema !== schema.schema) throw new SafeError("POLICY_INVALID");
+  if ((schema.scope || policy.scope) && policy.scope !== schema.scope) throw new SafeError("POLICY_INVALID");
   const schemaObjects = new Map(schema.objects.map((object) => [object.name, object]));
   const policyObjects = new Map(policy.objects.map((object) => [object.name, object]));
   for (const object of policy.objects) {

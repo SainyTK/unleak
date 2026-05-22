@@ -20,6 +20,24 @@
         "username": "postgres",
         "password": ""
       }
+    },
+    {
+      "name": "warehouse_bq",
+      "dialect": "bigquery",
+      "credentials": {
+        "projectId": "my-gcp-project",
+        "adc": {
+          "type": "authorized_user",
+          "client_id": "paste-client-id",
+          "client_secret": "paste-client-secret",
+          "refresh_token": "paste-refresh-token"
+        }
+      },
+      "options": {
+        "location": "US",
+        "maxBytesBilled": 1000000000,
+        "maxDatasetsPerSchemaDump": 50
+      }
     }
   ]
 }

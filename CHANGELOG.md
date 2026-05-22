@@ -2,6 +2,13 @@
 
 All notable changes to `unleak` should be summarized here.
 
+## 0.1.3
+
+- Add BigQuery connection support with ADC JSON in `credentials.adc`, project validation, and dataset-scoped schema and policy files.
+- Add BigQuery schema dumping, local-table SQL validation, physical table qualification, dry-run cost checks, and result normalization.
+- Add Claude deny rules for direct `bq` and `rtk bq` usage while keeping `gcloud auth application-default login` as a user setup path.
+- Document BigQuery setup, one-policy-per-dataset behavior, and `--connection` plus `--schema` query usage.
+
 ## 0.1.2
 
 - Add optional per-column policy capabilities for `select`, `filter`, `group`, `sort`, `join`, `aggregate`, and `expression`.

@@ -126,10 +126,10 @@ function runCase(agent, evalCase) {
     assert.equal(run.status, 0, run.stderr || run.stdout);
     assertAgentEval({ transcript, commands, evalCase });
     result.ok = true;
-    return result;
+    return { ...result, ...saveArtifact(agent, evalCase, transcript, commands) };
   } catch (error) {
     const failureDir = saveFailure(agent, evalCase, fixture.root, transcript, commands, error);
-    return { ...result, error: error.message, failureDir };
+    return { ...result, ...saveArtifact(agent, evalCase, transcript, commands), error: error.message, failureDir };
   }
 }
 
@@ -181,15 +181,34 @@ function saveFailure(agent, evalCase, fixtureRoot, transcript, commands, error) 
   return dir;
 }
 
+function saveArtifact(agent, evalCase, transcript, commands) {
+  if (!args.artifactsDir) return {};
+  const dir = path.resolve(process.cwd(), args.artifactsDir);
+  fs.mkdirSync(dir, { recursive: true });
+  const base = `${agent}-${evalCase.name}`;
+  const promptPath = path.join(dir, `${base}.prompt.md`);
+  const transcriptPath = path.join(dir, `${base}.jsonl`);
+  const commandsPath = path.join(dir, `${base}.commands.txt`);
+  fs.writeFileSync(promptPath, `${evalCase.prompt}\n`);
+  fs.writeFileSync(transcriptPath, transcript);
+  fs.writeFileSync(commandsPath, commands);
+  return {
+    promptPath: path.relative(process.cwd(), promptPath),
+    transcriptPath: path.relative(process.cwd(), transcriptPath),
+    commandsPath: path.relative(process.cwd(), commandsPath)
+  };
+}
+
 function parseArgs(argv) {
-  const parsed = { agent: "fixture", timeoutMs: 480000, preflightOnly: false };
+  const parsed = { agent: "fixture", timeoutMs: 480000, preflightOnly: false, artifactsDir: "" };
   for (let i = 0; i < argv.length; i += 1) {
     const arg = argv[i];
     if (arg === "--agent") parsed.agent = argv[++i];
     else if (arg === "--timeout-ms") parsed.timeoutMs = Number(argv[++i]);
     else if (arg === "--preflight") parsed.preflightOnly = true;
+    else if (arg === "--artifacts-dir") parsed.artifactsDir = argv[++i];
     else if (arg === "--help" || arg === "-h") {
-      console.log("Usage: node test/agent-evals/run-agent-evals.mjs --agent fixture|claude|codex|all [--preflight] [--timeout-ms 480000]");
+      console.log("Usage: node test/agent-evals/run-agent-evals.mjs --agent fixture|claude|codex|all [--preflight] [--artifacts-dir DIR] [--timeout-ms 480000]");
       process.exit(0);
     }
   }

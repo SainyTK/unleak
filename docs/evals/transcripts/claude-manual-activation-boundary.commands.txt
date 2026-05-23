@@ -1,0 +1,4 @@
+node .claude/skills/unleak/scripts/check-readiness.mjs
+node .claude/skills/unleak/scripts/list-connections.mjs
+node .claude/skills/unleak/scripts/propose-policy.mjs
+node .claude/skills/unleak/scripts/validate-policy.mjs

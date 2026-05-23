@@ -11,6 +11,7 @@
 <p align="center">
   <a href="#install">Install</a> -
   <a href="#what-it-does">What It Does</a> -
+  <a href="#agent-eval-results">Evals</a> -
   <a href="#workflow">Workflow</a> -
   <a href="#sql-scope">SQL Scope</a> -
   <a href="docs/unleak-theory.md">Theory</a> -
@@ -34,6 +35,12 @@ This is leakage reduction, not a sandbox. Agent permissions and the query policy
 - Lets users review and activate policy changes explicitly before they affect access.
 - Routes reads through deterministic scripts instead of raw database CLI access, including `psql`, `sqlite3`, and `bq`.
 - Supports everyday analysis workflows for SQLite, Postgres, and BigQuery.
+
+## Agent Eval Results
+
+Unleak passes SQLite agent evals across Claude and Codex using a realistic privacy-heavy retail dataset. The evals prove that agents can answer business questions with approved `SELECT` queries, show transformed contact data, use pseudonymous join keys, respect hidden fields and disabled tables, avoid raw database CLIs, and never run policy activation.
+
+See [SQLite Agent Evals](docs/evals/sqlite-agent-evals.md).
 
 ## Install
 
@@ -173,6 +180,7 @@ cd skills/unleak
 bun run test
 bun run test:agent:fixture
 bun run test:agent:preflight
+bun run eval:sqlite:report
 bun run test:postgres
 bun run test:postgres:active
 ```

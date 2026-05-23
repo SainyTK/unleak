@@ -15,7 +15,8 @@
     "test:agent:preflight": "node test/agent-evals/run-agent-evals.mjs --agent all --preflight",
     "test:agent:claude": "node test/agent-evals/run-agent-evals.mjs --agent claude",
     "test:agent:codex": "node test/agent-evals/run-agent-evals.mjs --agent codex",
-    "test:agent:sqlite": "node test/agent-evals/run-agent-evals.mjs --agent all"
+    "test:agent:sqlite": "node test/agent-evals/run-agent-evals.mjs --agent all",
+    "eval:sqlite:report": "node test/agent-evals/write-sqlite-report.mjs"
   },
   "dependencies": {
     "@google-cloud/bigquery": "^8.3.1",

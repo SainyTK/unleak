@@ -64,6 +64,7 @@ For BigQuery, users may run `gcloud auth application-default login`, then manual
 bun run test
 bun run test:agent:fixture
 bun run test:agent:preflight
+bun run eval:sqlite:report
 bun run test:postgres
 bun run test:postgres:active
 ```
@@ -79,6 +80,8 @@ bun run test:agent:sqlite
 ```
 
 `bun run test:agent:preflight` checks whether Claude and Codex are authenticated and reachable before running model-backed evals. Failures are written under `test/agent-evals/failures/` with the prompt, JSONL transcript, extracted commands, and diagnosis. The evals assert that agents use Unleak scripts, avoid raw database CLIs, do not run policy activation, and do not leak seeded raw emails, national IDs, addresses, notes, API keys, session tokens, or payment markers.
+
+`bun run eval:sqlite:report` runs the real Claude and Codex SQLite evals and writes the public report to `../../docs/evals/sqlite-agent-evals.md`, with structured JSON and transcript snapshots beside it.
 
 ## Current SQL Scope
 

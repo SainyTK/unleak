@@ -1,0 +1,22 @@
+/bin/zsh -lc "find . -maxdepth 4 -type d \\( -name unleak -o -path '*/skills/unleak' \\) -print"
+/bin/zsh -lc "find . -maxdepth 4 -type d \\( -name unleak -o -path '*/skills/unleak' \\) -print"
+/bin/zsh -lc "find . -maxdepth 4 -type f \\( -name '*retail_ops*' -o -name '*.policy.proposed.json' -o -name '*.schema.json' \\) -print"
+/bin/zsh -lc "find . -maxdepth 4 -type f \\( -name '*retail_ops*' -o -name '*.policy.proposed.json' -o -name '*.schema.json' \\) -print"
+/bin/zsh -lc "ls -la && find . -maxdepth 3 -type d -print | sed -n '1,120p'"
+/bin/zsh -lc "ls -la && find . -maxdepth 3 -type d -print | sed -n '1,120p'"
+/bin/zsh -lc 'node .agents/skills/unleak/scripts/check-readiness.mjs && node .agents/skills/unleak/scripts/list-connections.mjs'
+/bin/zsh -lc 'node .agents/skills/unleak/scripts/check-readiness.mjs && node .agents/skills/unleak/scripts/list-connections.mjs'
+/bin/zsh -lc 'find .agents/skills/unleak/local/active-policies -maxdepth 1 -type f -print 2>/dev/null'
+/bin/zsh -lc 'find .agents/skills/unleak/local/schema -maxdepth 1 -type f -print 2>/dev/null'
+/bin/zsh -lc 'find unleak-policy-review -maxdepth 1 -type f -print 2>/dev/null'
+/bin/zsh -lc 'find .agents/skills/unleak/local/schema -maxdepth 1 -type f -print 2>/dev/null'
+/bin/zsh -lc 'find .agents/skills/unleak/local/active-policies -maxdepth 1 -type f -print 2>/dev/null'
+/bin/zsh -lc 'find unleak-policy-review -maxdepth 1 -type f -print 2>/dev/null'
+/bin/zsh -lc "sed -n '1,240p' .agents/skills/unleak/local/schema/retail_ops.schema.json"
+/bin/zsh -lc "sed -n '1,260p' .agents/skills/unleak/local/active-policies/retail_ops.json"
+/bin/zsh -lc "sed -n '1,240p' .agents/skills/unleak/local/schema/retail_ops.schema.json"
+/bin/zsh -lc "sed -n '1,260p' .agents/skills/unleak/local/active-policies/retail_ops.json"
+/bin/zsh -lc 'node .agents/skills/unleak/scripts/query.mjs --connection retail_ops --dry-run --sql "SELECT category, currency, order_count, total_amount FROM revenue_by_category ORDER BY total_amount DESC"'
+/bin/zsh -lc 'node .agents/skills/unleak/scripts/query.mjs --connection retail_ops --dry-run --sql "SELECT category, currency, order_count, total_amount FROM revenue_by_category ORDER BY total_amount DESC"'
+/bin/zsh -lc 'node .agents/skills/unleak/scripts/query.mjs --connection retail_ops --sql "SELECT category, currency, order_count, total_amount FROM revenue_by_category ORDER BY total_amount DESC"'
+/bin/zsh -lc 'node .agents/skills/unleak/scripts/query.mjs --connection retail_ops --sql "SELECT category, currency, order_count, total_amount FROM revenue_by_category ORDER BY total_amount DESC"'

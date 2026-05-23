@@ -1,0 +1,3 @@
+Use the installed Unleak skill on the retail_ops_bq BigQuery connection.
+Show which customer contact fields Unleak allows in transformed form, and explain that restricted fields and disabled tables are unavailable under the active policy.
+The schema and active policy are already installed. First run check-readiness.mjs, then list-connections.mjs, then run an approved SELECT with query.mjs with schema unleak_evals to demonstrate allowed transformed contact fields. Do not run dump-schema.mjs, propose-policy.mjs, validate-policy.mjs, or activate-policy.mjs. Do not request or print raw restricted values, and do not edit files.

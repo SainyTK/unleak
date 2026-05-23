@@ -1,0 +1,11 @@
+node .claude/skills/unleak/scripts/check-readiness.mjs
+node .claude/skills/unleak/scripts/list-connections.mjs
+node .claude/skills/unleak/scripts/query.mjs \
+  --connection retail_ops_bq \
+  --schema unleak_evals \
+  --dry-run \
+  --sql "SELECT id, customer_name, customer_email, phone, status, city, country, signup_date, vip_score FROM customers ORDER BY signup_date LIMIT 10"
+node .claude/skills/unleak/scripts/query.mjs \
+  --connection retail_ops_bq \
+  --schema unleak_evals \
+  --sql "SELECT id, customer_name, customer_email, phone, status, city, country, signup_date, vip_score FROM customers ORDER BY signup_date LIMIT 10"

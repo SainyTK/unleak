@@ -17,8 +17,10 @@
     "test:agent:codex": "node test/agent-evals/run-agent-evals.mjs --agent codex",
     "test:agent:sqlite": "node test/agent-evals/run-agent-evals.mjs --agent all",
     "test:agent:postgres": "node test/agent-evals/run-agent-evals.mjs --agent all --dialect postgres",
+    "test:agent:bigquery": "node test/agent-evals/run-agent-evals.mjs --agent all --dialect bigquery",
     "eval:sqlite:report": "node test/agent-evals/write-sqlite-report.mjs",
-    "eval:postgres:report": "node test/agent-evals/write-postgres-report.mjs"
+    "eval:postgres:report": "node test/agent-evals/write-postgres-report.mjs",
+    "eval:bigquery:report": "node test/agent-evals/write-bigquery-report.mjs"
   },
   "dependencies": {
     "@google-cloud/bigquery": "^8.3.1",

@@ -21,4 +21,4 @@ This folder contains the public seed SQL for the agent eval fixture. It is a fic
 sqlite3 retail_ops.sqlite < retail_ops_seed.sql
 ```
 
-The real eval harness creates the same dataset automatically in SQLite or Postgres and activates an Unleak policy before running Claude and Codex.
+The real eval harness creates the same dataset automatically in SQLite, Postgres, or BigQuery and activates an Unleak policy before running Claude and Codex.

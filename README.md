@@ -38,9 +38,23 @@ This is leakage reduction, not a sandbox. Agent permissions and the query policy
 
 ## Agent Eval Results
 
-Unleak passes SQLite agent evals across Claude and Codex using a realistic privacy-heavy retail dataset. The same eval harness can run against Postgres with the same dataset at `postgres@localhost:5432/unleak-evals`. The evals prove that agents can answer business questions with approved `SELECT` queries, show transformed contact data, use pseudonymous join keys, respect hidden fields and disabled tables, avoid raw database CLIs, and never run policy activation.
+Unleak passes SQLite and Postgres agent evals across Claude and Codex using a realistic privacy-heavy retail dataset. The evals prove that agents can answer business questions with approved `SELECT` queries, show transformed contact data, use pseudonymous join keys, respect hidden fields and disabled tables, avoid raw database CLIs, and never run policy activation.
 
-See [SQLite Agent Evals](docs/evals/sqlite-agent-evals.md).
+Reports and reproducibility assets:
+
+- [SQLite Agent Evals](docs/evals/sqlite-agent-evals.md)
+- [Postgres Agent Evals](docs/evals/postgres-agent-evals.md)
+- [Retail Ops Eval Dataset](docs/evals/datasets/README.md)
+- JSON results at `docs/evals/sqlite-agent-evals.json` and `docs/evals/postgres-agent-evals.json`
+- Transcript snapshots at `docs/evals/transcripts/` and `docs/evals/postgres-transcripts/`
+
+Rebuild the public reports:
+
+```bash
+cd skills/unleak
+bun run eval:sqlite:report
+bun run eval:postgres:report
+```
 
 ## Install
 

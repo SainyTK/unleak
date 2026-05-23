@@ -2,6 +2,13 @@
 
 All notable changes to `unleak` should be summarized here.
 
+## 0.1.4
+
+- Add realistic SQLite and Postgres agent eval reports across Claude and Codex.
+- Publish the Retail Ops eval dataset with seeded privacy edge cases and reproduction docs.
+- Add transcript snapshots, structured JSON results, and extracted command logs for public eval review.
+- Add `eval:sqlite:report` and `eval:postgres:report` scripts for rebuilding repo-visible eval artifacts.
+
 ## 0.1.3
 
 - Add BigQuery connection support with ADC JSON in `credentials.adc`, project validation, and dataset-scoped schema and policy files.

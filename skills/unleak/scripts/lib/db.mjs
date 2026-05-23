@@ -117,3 +117,31 @@ export async function withPostgres(connection, fn) {
     }
   }
 }
+
+export async function withMysql(connection, fn) {
+  let connectionHandle;
+  try {
+    const mysql = await import("mysql2/promise");
+    connectionHandle = await mysql.createConnection({
+      host: connection.credentials.host,
+      port: Number(connection.credentials.port),
+      database: connection.credentials.dbname,
+      user: connection.credentials.username,
+      password: connection.credentials.password ?? "",
+      rowsAsArray: false,
+      namedPlaceholders: false
+    });
+    return await fn(connectionHandle);
+  } catch (error) {
+    if (error instanceof SafeError) throw error;
+    throw new SafeError("DB_OPEN_FAILED");
+  } finally {
+    if (connectionHandle) {
+      try {
+        await connectionHandle.end();
+      } catch {
+        // noop
+      }
+    }
+  }
+}

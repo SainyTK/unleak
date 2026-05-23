@@ -22,12 +22,17 @@ export function validateConfig(config) {
       assertSafeName(connection.name, "connection");
       if (names.has(connection.name)) throw new Error("duplicate");
       names.add(connection.name);
-      if (!["sqlite", "postgres", "bigquery"].includes(connection.dialect)) throw new Error("dialect");
+      if (!["sqlite", "postgres", "mysql", "bigquery"].includes(connection.dialect)) throw new Error("dialect");
       if (!connection.credentials || typeof connection.credentials !== "object") throw new Error("credentials");
       if (connection.dialect === "sqlite" && !connection.credentials.path) throw new Error("sqlite path");
       if (connection.dialect === "postgres") {
         for (const key of ["host", "port", "dbname", "username"]) {
           if (connection.credentials[key] === undefined) throw new Error("postgres field");
+        }
+      }
+      if (connection.dialect === "mysql") {
+        for (const key of ["host", "port", "dbname", "username"]) {
+          if (connection.credentials[key] === undefined) throw new Error("mysql field");
         }
       }
       if (connection.dialect === "bigquery") validateBigQueryConnection(connection);

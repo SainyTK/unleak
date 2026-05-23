@@ -15,7 +15,7 @@ Unleak passes the SQLite agent eval suite across Claude and Codex using a realis
 
 ## Example Questions and Intended Queries
 
-These are the user-facing questions and baseline SQL shapes the eval is designed to exercise. The original eval prompts are saved beside each transcript under [transcripts/](transcripts/). Agents may choose equivalent final SQL, but the result must stay inside the active policy.
+These are the user-facing questions and baseline SQL shapes the eval is designed to exercise. The original eval prompts are saved beside each transcript under [sqlite-transcripts/](sqlite-transcripts/). Agents may choose equivalent final SQL, but the result must stay inside the active policy.
 
 | Case | Example Question | Intended Query Shape |
 |---|---|---|
@@ -133,18 +133,18 @@ SELECT category, currency, order_count, total_amount FROM revenue_by_category OR
 
 ## Artifacts
 
-The JSON result is stored at [sqlite-agent-evals.json](sqlite-agent-evals.json). Transcript snapshots are stored under [transcripts/](transcripts/).
+The JSON result is stored at [sqlite-agent-evals.json](sqlite-agent-evals.json). Transcript snapshots are stored under [sqlite-transcripts/](sqlite-transcripts/).
 
 | Agent | Case | Original Prompt | Transcript | Commands |
 |---|---|---|---|---|
-| Claude | Business Summary | [prompt](transcripts/claude-business-summary.prompt.md) | [transcript](transcripts/claude-business-summary.jsonl) | [commands](transcripts/claude-business-summary.commands.txt) |
-| Claude | Privacy Boundary | [prompt](transcripts/claude-privacy-boundary.prompt.md) | [transcript](transcripts/claude-privacy-boundary.jsonl) | [commands](transcripts/claude-privacy-boundary.commands.txt) |
-| Claude | Joinable Analysis | [prompt](transcripts/claude-joinable-analysis.prompt.md) | [transcript](transcripts/claude-joinable-analysis.jsonl) | [commands](transcripts/claude-joinable-analysis.commands.txt) |
-| Claude | Manual Activation Boundary | [prompt](transcripts/claude-manual-activation-boundary.prompt.md) | [transcript](transcripts/claude-manual-activation-boundary.jsonl) | [commands](transcripts/claude-manual-activation-boundary.commands.txt) |
-| Codex | Business Summary | [prompt](transcripts/codex-business-summary.prompt.md) | [transcript](transcripts/codex-business-summary.jsonl) | [commands](transcripts/codex-business-summary.commands.txt) |
-| Codex | Privacy Boundary | [prompt](transcripts/codex-privacy-boundary.prompt.md) | [transcript](transcripts/codex-privacy-boundary.jsonl) | [commands](transcripts/codex-privacy-boundary.commands.txt) |
-| Codex | Joinable Analysis | [prompt](transcripts/codex-joinable-analysis.prompt.md) | [transcript](transcripts/codex-joinable-analysis.jsonl) | [commands](transcripts/codex-joinable-analysis.commands.txt) |
-| Codex | Manual Activation Boundary | [prompt](transcripts/codex-manual-activation-boundary.prompt.md) | [transcript](transcripts/codex-manual-activation-boundary.jsonl) | [commands](transcripts/codex-manual-activation-boundary.commands.txt) |
+| Claude | Business Summary | [prompt](sqlite-transcripts/claude-business-summary.prompt.md) | [transcript](sqlite-transcripts/claude-business-summary.jsonl) | [commands](sqlite-transcripts/claude-business-summary.commands.txt) |
+| Claude | Privacy Boundary | [prompt](sqlite-transcripts/claude-privacy-boundary.prompt.md) | [transcript](sqlite-transcripts/claude-privacy-boundary.jsonl) | [commands](sqlite-transcripts/claude-privacy-boundary.commands.txt) |
+| Claude | Joinable Analysis | [prompt](sqlite-transcripts/claude-joinable-analysis.prompt.md) | [transcript](sqlite-transcripts/claude-joinable-analysis.jsonl) | [commands](sqlite-transcripts/claude-joinable-analysis.commands.txt) |
+| Claude | Manual Activation Boundary | [prompt](sqlite-transcripts/claude-manual-activation-boundary.prompt.md) | [transcript](sqlite-transcripts/claude-manual-activation-boundary.jsonl) | [commands](sqlite-transcripts/claude-manual-activation-boundary.commands.txt) |
+| Codex | Business Summary | [prompt](sqlite-transcripts/codex-business-summary.prompt.md) | [transcript](sqlite-transcripts/codex-business-summary.jsonl) | [commands](sqlite-transcripts/codex-business-summary.commands.txt) |
+| Codex | Privacy Boundary | [prompt](sqlite-transcripts/codex-privacy-boundary.prompt.md) | [transcript](sqlite-transcripts/codex-privacy-boundary.jsonl) | [commands](sqlite-transcripts/codex-privacy-boundary.commands.txt) |
+| Codex | Joinable Analysis | [prompt](sqlite-transcripts/codex-joinable-analysis.prompt.md) | [transcript](sqlite-transcripts/codex-joinable-analysis.jsonl) | [commands](sqlite-transcripts/codex-joinable-analysis.commands.txt) |
+| Codex | Manual Activation Boundary | [prompt](sqlite-transcripts/codex-manual-activation-boundary.prompt.md) | [transcript](sqlite-transcripts/codex-manual-activation-boundary.jsonl) | [commands](sqlite-transcripts/codex-manual-activation-boundary.commands.txt) |
 
 ## Reproduce
 

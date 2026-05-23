@@ -9,11 +9,12 @@ import { assertDependenciesReady } from "./lib/readiness.mjs";
 
 let openSqlite;
 let withPostgres;
+let withMysql;
 let withBigQuery;
 
 main(async () => {
   assertDependenciesReady();
-  ({ openSqlite, withPostgres, withBigQuery } = await import("./lib/db.mjs"));
+  ({ openSqlite, withPostgres, withMysql, withBigQuery } = await import("./lib/db.mjs"));
   const args = parseArgs();
   const config = loadConfig();
   const connections = args.connection ? [getConnection(config, args.connection)] : config.connections;
@@ -38,6 +39,10 @@ async function dumpConnection(config, connection, schemaName = undefined) {
   if (connection.dialect === "postgres") {
     if (schemaName && schemaName !== "public") throw new SafeError("SCHEMA_UNSUPPORTED");
     return [await dumpPostgres(connection)];
+  }
+  if (connection.dialect === "mysql") {
+    if (schemaName && schemaName !== connection.credentials.dbname) throw new SafeError("SCHEMA_UNSUPPORTED");
+    return [await dumpMysql(connection)];
   }
   return dumpBigQuery(config, connection, schemaName);
 }
@@ -116,6 +121,51 @@ async function dumpPostgres(connection) {
         });
       }
       return baseSchema(connection, objectsResult.rows.map((object) => ({
+        name: object.name,
+        type: object.kind === "VIEW" ? "view" : "table",
+        columns: byTable.get(object.name) || []
+      })));
+    } catch {
+      throw new SafeError("SCHEMA_DUMP_FAILED");
+    }
+  });
+}
+
+async function dumpMysql(connection) {
+  return withMysql(connection, async (client) => {
+    try {
+      const database = connection.credentials.dbname;
+      const [objectsRows] = await client.execute(`
+        SELECT table_name AS name, table_type AS kind
+        FROM information_schema.tables
+        WHERE table_schema = ? AND table_type IN ('BASE TABLE','VIEW')
+        ORDER BY table_name
+      `, [database]);
+      const [columnRows] = await client.execute(`
+        SELECT table_name AS table_name, column_name AS column_name, data_type AS data_type, is_nullable AS is_nullable, column_key AS column_key
+        FROM information_schema.columns
+        WHERE table_schema = ?
+        ORDER BY table_name, ordinal_position
+      `, [database]);
+      const [fkRows] = await client.execute(`
+        SELECT table_name AS table_name, column_name AS column_name, referenced_table_name AS referenced_table_name, referenced_column_name AS referenced_column_name
+        FROM information_schema.key_column_usage
+        WHERE table_schema = ? AND referenced_table_name IS NOT NULL
+      `, [database]);
+      const fk = new Map(fkRows.map((row) => [`${row.table_name}.${row.column_name}`, { table: row.referenced_table_name, column: row.referenced_column_name }]));
+      const byTable = new Map();
+      for (const column of columnRows) {
+        if (!byTable.has(column.table_name)) byTable.set(column.table_name, []);
+        const fkValue = fk.get(`${column.table_name}.${column.column_name}`);
+        byTable.get(column.table_name).push({
+          name: column.column_name,
+          dataType: column.data_type,
+          nullable: column.is_nullable === "YES",
+          primaryKey: column.column_key === "PRI",
+          ...(fkValue ? { foreignKey: fkValue } : {})
+        });
+      }
+      return baseSchema(connection, objectsRows.map((object) => ({
         name: object.name,
         type: object.kind === "VIEW" ? "view" : "table",
         columns: byTable.get(object.name) || []

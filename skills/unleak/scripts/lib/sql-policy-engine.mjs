@@ -106,6 +106,7 @@ function validateBigQuerySqlSubset(sql) {
 
 function parserDialect(dialect) {
   if (dialect === "bigquery") return "bigquery";
+  if (dialect === "mysql") return "mysql";
   if (dialect === "postgres") return "postgresql";
   return "postgresql";
 }

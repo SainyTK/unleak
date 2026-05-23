@@ -1,0 +1,31 @@
+{
+  "policyVersion": 1,
+  "connection": "sales_mysql",
+  "generatedAt": "2026-05-23T13:09:26.812Z",
+  "objects": [
+    {
+      "name": "unleak_audit_log",
+      "type": "table",
+      "objectPolicy": "disabled",
+      "columns": []
+    },
+    {
+      "name": "unleak_customers",
+      "type": "table",
+      "objectPolicy": "enabled",
+      "columns": []
+    },
+    {
+      "name": "unleak_order_summary",
+      "type": "view",
+      "objectPolicy": "enabled",
+      "columns": []
+    },
+    {
+      "name": "unleak_orders",
+      "type": "table",
+      "objectPolicy": "enabled",
+      "columns": []
+    }
+  ]
+}

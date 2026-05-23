@@ -11,20 +11,26 @@
     "test:workflow": "node test/workflow.test.mjs",
     "test:postgres": "node test/run-tests.mjs --postgres",
     "test:postgres:active": "node test/run-tests.mjs --postgres-active",
+    "setup:mysql": "node test/setup-mysql.mjs",
+    "test:mysql": "node test/run-tests.mjs --mysql",
+    "test:mysql:active": "node test/run-tests.mjs --mysql-active",
     "test:agent:fixture": "node test/agent-evals/run-agent-evals.mjs --agent fixture",
     "test:agent:preflight": "node test/agent-evals/run-agent-evals.mjs --agent all --preflight",
     "test:agent:claude": "node test/agent-evals/run-agent-evals.mjs --agent claude",
     "test:agent:codex": "node test/agent-evals/run-agent-evals.mjs --agent codex",
     "test:agent:sqlite": "node test/agent-evals/run-agent-evals.mjs --agent all",
     "test:agent:postgres": "node test/agent-evals/run-agent-evals.mjs --agent all --dialect postgres",
+    "test:agent:mysql": "node test/agent-evals/run-agent-evals.mjs --agent all --dialect mysql",
     "test:agent:bigquery": "node test/agent-evals/run-agent-evals.mjs --agent all --dialect bigquery",
     "eval:sqlite:report": "node test/agent-evals/write-sqlite-report.mjs",
     "eval:postgres:report": "node test/agent-evals/write-postgres-report.mjs",
+    "eval:mysql:report": "node test/agent-evals/write-mysql-report.mjs",
     "eval:bigquery:report": "node test/agent-evals/write-bigquery-report.mjs"
   },
   "dependencies": {
     "@google-cloud/bigquery": "^8.3.1",
     "better-sqlite3": "^12.4.6",
+    "mysql2": "^3.15.3",
     "node-sql-parser": "^5.3.13",
     "pg": "^8.16.3"
   }

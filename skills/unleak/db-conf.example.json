@@ -22,6 +22,17 @@
       }
     },
     {
+      "name": "warehouse_mysql",
+      "dialect": "mysql",
+      "credentials": {
+        "host": "localhost",
+        "port": "3306",
+        "dbname": "unleak-evals",
+        "username": "root",
+        "password": ""
+      }
+    },
+    {
       "name": "warehouse_bq",
       "dialect": "bigquery",
       "credentials": {

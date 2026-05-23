@@ -19,9 +19,14 @@ const testFiles = fs.readdirSync(testDir)
 
 const env = { ...process.env };
 if (args.has("--postgres")) env.UNLEAK_POSTGRES_TEST = "1";
+if (args.has("--mysql")) env.UNLEAK_MYSQL_TEST = "1";
 if (args.has("--postgres-active")) {
   env.UNLEAK_POSTGRES_TEST = "1";
   env.UNLEAK_POSTGRES_ACTIVE_TEST = "1";
+}
+if (args.has("--mysql-active")) {
+  env.UNLEAK_MYSQL_TEST = "1";
+  env.UNLEAK_MYSQL_ACTIVE_TEST = "1";
 }
 
 const result = spawnSync(process.execPath, ["--test", "--test-concurrency=1", ...testFiles], {

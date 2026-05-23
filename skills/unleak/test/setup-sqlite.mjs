@@ -76,6 +76,17 @@ fs.writeFileSync(path.join(localDir, "db-conf.json"), `${JSON.stringify({
         username: "postgres",
         password: ""
       }
+    },
+    {
+      name: "sales_mysql",
+      dialect: "mysql",
+      credentials: {
+        host: "localhost",
+        port: "3306",
+        dbname: "unleak-evals",
+        username: "root",
+        password: ""
+      }
     }
   ]
 }, null, 2)}\n`);

@@ -11,6 +11,7 @@ import { assertDependenciesReady } from "./lib/readiness.mjs";
 
 let openSqlite;
 let withPostgres;
+let withMysql;
 let validateAndPlan;
 let qualifyBigQuerySql;
 let bigQueryDryRun;
@@ -18,7 +19,7 @@ let bigQueryQuery;
 
 main(async () => {
   assertDependenciesReady();
-  ({ openSqlite, withPostgres, bigQueryDryRun, bigQueryQuery } = await import("./lib/db.mjs"));
+  ({ openSqlite, withPostgres, withMysql, bigQueryDryRun, bigQueryQuery } = await import("./lib/db.mjs"));
   ({ validateAndPlan, qualifyBigQuerySql } = await import("./lib/sql-policy-engine.mjs"));
   const args = parseArgs();
   if (!args.connection) throw new SafeError("CONNECTION_REQUIRED");
@@ -97,6 +98,16 @@ async function executeLimited(config, connection, sql, limit) {
     }
   }
   if (connection.dialect === "bigquery") return bigQueryQuery(config, connection, wrapped);
+  if (connection.dialect === "mysql") {
+    return withMysql(connection, async (client) => {
+      try {
+        const [rows] = await client.query(wrapped);
+        return rows;
+      } catch {
+        throw new SafeError("SCHEMA_STALE_OR_QUERY_INVALID");
+      }
+    });
+  }
   return withPostgres(connection, async (client) => {
     try {
       const result = await client.query(wrapped);

@@ -47,7 +47,7 @@ Reports and reproducibility assets:
 - [BigQuery Agent Evals](docs/evals/bigquery-agent-evals.md)
 - [Retail Ops Eval Dataset](docs/evals/datasets/README.md)
 - JSON results at `docs/evals/sqlite-agent-evals.json`, `docs/evals/postgres-agent-evals.json`, and `docs/evals/bigquery-agent-evals.json`
-- Transcript snapshots at `docs/evals/transcripts/`, `docs/evals/postgres-transcripts/`, and `docs/evals/bigquery-transcripts/`
+- Transcript snapshots at `docs/evals/sqlite-transcripts/`, `docs/evals/postgres-transcripts/`, and `docs/evals/bigquery-transcripts/`
 
 Rebuild the public reports:
 

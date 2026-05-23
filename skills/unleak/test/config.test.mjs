@@ -10,9 +10,10 @@ test("list-connections returns safe metadata only", () => {
   const output = expectOk(run("list-connections.mjs"));
   assert.deepEqual(output.connections, [
     { name: "sales_sqlite", dialect: "sqlite" },
-    { name: "sales_pg", dialect: "postgres" }
+    { name: "sales_pg", dialect: "postgres" },
+    { name: "sales_mysql", dialect: "mysql" }
   ]);
-  assert.doesNotMatch(JSON.stringify(output), /localhost|local-test-hmac-secret|5432/);
+  assert.doesNotMatch(JSON.stringify(output), /localhost|local-test-hmac-secret|5432|3306|root/);
 });
 
 test("install-claude-settings creates and deduplicates deny rules", () => {
@@ -29,7 +30,7 @@ test("install-claude-settings creates and deduplicates deny rules", () => {
   assert(settings.permissions.allow.includes("Write(./unleak-policy-review/**)"));
   assert(settings.permissions.allow.includes("Edit(./unleak-policy-review/**)"));
   assert(settings.permissions.allow.includes("MultiEdit(./unleak-policy-review/**)"));
-  assert.equal(first.denyRulesAdded, 23);
+  assert.equal(first.denyRulesAdded, 25);
   assert.equal(second.denyRulesAdded, 0);
   assert(settings.permissions.deny.every((rule) => !/\((\/|[A-Za-z]:[\\/])/.test(rule)));
   assert(settings.permissions.deny.some((rule) => rule === "Bash(*activate-policy*)"));
@@ -37,6 +38,8 @@ test("install-claude-settings creates and deduplicates deny rules", () => {
   assert(settings.permissions.deny.includes("Bash(rtk psql*)"));
   assert(settings.permissions.deny.includes("Bash(sqlite3*)"));
   assert(settings.permissions.deny.includes("Bash(rtk sqlite3*)"));
+  assert(settings.permissions.deny.includes("Bash(mysql*)"));
+  assert(settings.permissions.deny.includes("Bash(rtk mysql*)"));
   assert(settings.permissions.deny.includes("Bash(bq*)"));
   assert(settings.permissions.deny.includes("Bash(rtk bq*)"));
   assert(settings.permissions.deny.some((rule) => rule.startsWith("Read(") && rule.endsWith("local/db-conf.json)")));
@@ -74,7 +77,11 @@ test("config validation rejects duplicate names, unsafe names, and unsupported d
   assert.doesNotThrow(() => validateConfig(base));
   assert.throws(() => validateConfig({ ...base, connections: [...base.connections, base.connections[0]] }), /DB_CONF_INVALID/);
   assert.throws(() => validateConfig({ ...base, connections: [{ name: "../bad", dialect: "sqlite", credentials: { path: "./x.sqlite" } }] }), /DB_CONF_INVALID/);
-  assert.throws(() => validateConfig({ ...base, connections: [{ name: "bad", dialect: "mysql", credentials: {} }] }), /DB_CONF_INVALID/);
+  assert.throws(() => validateConfig({ ...base, connections: [{ name: "bad", dialect: "oracle", credentials: {} }] }), /DB_CONF_INVALID/);
+  assert.doesNotThrow(() => validateConfig({
+    hmacSecret: "x",
+    connections: [{ name: "mysql_safe", dialect: "mysql", credentials: { host: "localhost", port: "3306", dbname: "unleak-evals", username: "root", password: "" } }]
+  }));
 });
 
 test("config validation accepts BigQuery ADC shapes and rejects unsafe variants", () => {
@@ -137,6 +144,7 @@ test("db-conf.example.json uses documented object shape with sqlite and postgres
   assert(Array.isArray(example.connections));
   assert(example.connections.some((connection) => connection.dialect === "sqlite" && connection.credentials.path));
   assert(example.connections.some((connection) => connection.dialect === "postgres" && connection.credentials.host && connection.credentials.dbname && connection.credentials.username));
+  assert(example.connections.some((connection) => connection.dialect === "mysql" && connection.credentials.host && connection.credentials.dbname && connection.credentials.username));
   assert(example.connections.some((connection) => connection.dialect === "bigquery" && connection.credentials.projectId && connection.credentials.adc?.type === "authorized_user" && connection.options?.maxBytesBilled));
   assert.doesNotThrow(() => validateConfig(example));
 });
@@ -151,13 +159,14 @@ test("init-config creates local config from example and refuses overwrite", () =
     const output = expectOk(run("init-config.mjs", [], { cwd }));
     assert.equal(output.path, configPath);
     assert.equal(output.settings.settingsPath, settingsPath);
-    assert.equal(output.settings.denyRulesAdded, 23);
+    assert.equal(output.settings.denyRulesAdded, 25);
     const generated = JSON.parse(fs.readFileSync(configPath, "utf8"));
     const example = JSON.parse(fs.readFileSync(path.join(skillRoot, "db-conf.example.json"), "utf8"));
     assert.deepEqual(generated, example);
     const settings = JSON.parse(fs.readFileSync(settingsPath, "utf8"));
     assert(settings.permissions.deny.includes("Bash(psql*)"));
     assert(settings.permissions.deny.includes("Bash(sqlite3*)"));
+    assert(settings.permissions.deny.includes("Bash(mysql*)"));
     assert(settings.permissions.deny.includes("Bash(bq*)"));
     expectFail(run("init-config.mjs", [], { cwd }), "DB_CONF_EXISTS");
   } finally {

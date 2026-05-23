@@ -1,0 +1,28 @@
+/bin/zsh -lc "sed -n '1,220p' /private/var/folders/x3/4w6qlmgx7ss4zsvzcjq7592m0000gn/T/unleak-agent-codex-tpuWhZ/.agents/skills/unleak/SKILL.md"
+/bin/zsh -lc "sed -n '1,220p' /private/var/folders/x3/4w6qlmgx7ss4zsvzcjq7592m0000gn/T/unleak-agent-codex-tpuWhZ/.agents/skills/unleak/SKILL.md"
+/bin/zsh -lc 'node .claude/skills/unleak/scripts/list-connections.mjs'
+/bin/zsh -lc 'node .claude/skills/unleak/scripts/check-readiness.mjs'
+/bin/zsh -lc 'node .claude/skills/unleak/scripts/list-connections.mjs'
+/bin/zsh -lc 'node .claude/skills/unleak/scripts/check-readiness.mjs'
+/bin/zsh -lc "find . -maxdepth 4 -type f -path '*/scripts/query.mjs' -o -path '*/unleak/SKILL.md'"
+/bin/zsh -lc "find . -maxdepth 4 -type f -path '*/scripts/query.mjs' -o -path '*/unleak/SKILL.md'"
+/bin/zsh -lc "rg --files -g 'query.mjs' -g 'check-readiness.mjs' -g 'list-connections.mjs' -g '*.schema.json' -g '*.json'"
+/bin/zsh -lc "rg --files -g 'query.mjs' -g 'check-readiness.mjs' -g 'list-connections.mjs' -g '*.schema.json' -g '*.json'"
+/bin/zsh -lc 'find .agents/skills/unleak -maxdepth 3 -type f | sort'
+/bin/zsh -lc 'find .agents/skills/unleak -maxdepth 3 -type f | sort'
+/bin/zsh -lc "sed -n '1,240p' .agents/skills/unleak/local/schema/retail_ops_pg.schema.json"
+/bin/zsh -lc "sed -n '1,240p' .agents/skills/unleak/local/schema/retail_ops_pg.schema.json"
+/bin/zsh -lc "sed -n '1,260p' .agents/skills/unleak/local/active-policies/retail_ops_pg.json"
+/bin/zsh -lc "sed -n '1,260p' .agents/skills/unleak/local/active-policies/retail_ops_pg.json"
+/bin/zsh -lc 'node .agents/skills/unleak/scripts/list-connections.mjs'
+/bin/zsh -lc 'node .agents/skills/unleak/scripts/list-connections.mjs'
+/bin/zsh -lc 'node .agents/skills/unleak/scripts/check-readiness.mjs'
+/bin/zsh -lc 'node .agents/skills/unleak/scripts/check-readiness.mjs'
+/bin/zsh -lc 'node .agents/skills/unleak/scripts/query.mjs --connection retail_ops_pg --dry-run --sql "SELECT category, currency, SUM(amount) AS total_order_amount, COUNT(*) AS order_count FROM orders GROUP BY category, currency ORDER BY category, currency"'
+/bin/zsh -lc 'node .agents/skills/unleak/scripts/query.mjs --connection retail_ops_pg --dry-run --sql "SELECT health_status, SUM(monthly_revenue) AS total_monthly_revenue, COUNT(*) AS account_count FROM accounts GROUP BY health_status ORDER BY total_monthly_revenue DESC LIMIT 2"'
+/bin/zsh -lc 'node .agents/skills/unleak/scripts/query.mjs --connection retail_ops_pg --dry-run --sql "SELECT category, currency, SUM(amount) AS total_order_amount, COUNT(*) AS order_count FROM orders GROUP BY category, currency ORDER BY category, currency"'
+/bin/zsh -lc 'node .agents/skills/unleak/scripts/query.mjs --connection retail_ops_pg --dry-run --sql "SELECT health_status, SUM(monthly_revenue) AS total_monthly_revenue, COUNT(*) AS account_count FROM accounts GROUP BY health_status ORDER BY total_monthly_revenue DESC LIMIT 2"'
+/bin/zsh -lc 'node .agents/skills/unleak/scripts/query.mjs --connection retail_ops_pg --sql "SELECT health_status, SUM(monthly_revenue) AS total_monthly_revenue, COUNT(*) AS account_count FROM accounts GROUP BY health_status ORDER BY total_monthly_revenue DESC LIMIT 2"'
+/bin/zsh -lc 'node .agents/skills/unleak/scripts/query.mjs --connection retail_ops_pg --sql "SELECT category, currency, SUM(amount) AS total_order_amount, COUNT(*) AS order_count FROM orders GROUP BY category, currency ORDER BY category, currency"'
+/bin/zsh -lc 'node .agents/skills/unleak/scripts/query.mjs --connection retail_ops_pg --sql "SELECT health_status, SUM(monthly_revenue) AS total_monthly_revenue, COUNT(*) AS account_count FROM accounts GROUP BY health_status ORDER BY total_monthly_revenue DESC LIMIT 2"'
+/bin/zsh -lc 'node .agents/skills/unleak/scripts/query.mjs --connection retail_ops_pg --sql "SELECT category, currency, SUM(amount) AS total_order_amount, COUNT(*) AS order_count FROM orders GROUP BY category, currency ORDER BY category, currency"'

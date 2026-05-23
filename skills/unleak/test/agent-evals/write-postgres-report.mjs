@@ -6,10 +6,10 @@ import { spawnSync } from "node:child_process";
 const skillRoot = path.resolve(import.meta.dirname, "../..");
 const repoRoot = path.resolve(skillRoot, "../..");
 const docsDir = path.join(repoRoot, "docs", "evals");
-const transcriptsDir = path.join(docsDir, "transcripts");
+const transcriptsDir = path.join(docsDir, "postgres-transcripts");
 const datasetsDir = path.join(docsDir, "datasets");
-const resultPath = path.join(docsDir, "sqlite-agent-evals.json");
-const reportPath = path.join(docsDir, "sqlite-agent-evals.md");
+const resultPath = path.join(docsDir, "postgres-agent-evals.json");
+const reportPath = path.join(docsDir, "postgres-agent-evals.md");
 
 fs.rmSync(transcriptsDir, { recursive: true, force: true });
 fs.mkdirSync(transcriptsDir, { recursive: true });
@@ -20,6 +20,8 @@ const command = [
   path.join(skillRoot, "test", "agent-evals", "run-agent-evals.mjs"),
   "--agent",
   "all",
+  "--dialect",
+  "postgres",
   "--artifacts-dir",
   path.relative(skillRoot, transcriptsDir)
 ];
@@ -41,8 +43,8 @@ const result = JSON.parse(run.stdout);
 const generatedAt = new Date().toISOString();
 const report = {
   generatedAt,
-  command: "bun run eval:sqlite:report",
-  dialect: "sqlite",
+  command: "bun run eval:postgres:report",
+  dialect: "postgres",
   dataset: datasetSummary(),
   cases: caseSummaries(),
   assertions: assertionsSummary(),
@@ -86,7 +88,7 @@ function relFromSkill(file) {
 
 function datasetSummary() {
   return {
-    name: "retail_ops",
+    name: "retail_ops_pg",
     tables: ["customers", "accounts", "orders", "support_tickets", "audit_log"],
     view: "revenue_by_category",
     datasetReadmePath: "docs/evals/datasets/README.md",
@@ -175,24 +177,24 @@ function renderMarkdown(report) {
 ${result.finalQueries.map((query) => `\`\`\`sql\n${query}\n\`\`\``).join("\n")}`)
     .join("\n\n");
 
-  return `# SQLite Agent Evals
+  return `# Postgres Agent Evals
 
 Generated: ${report.generatedAt}
 
-Unleak passes the SQLite agent eval suite across Claude and Codex using a realistic retail operations dataset. The evals prove that agents can answer useful business questions while staying inside policy-approved query paths and without exposing seeded raw sensitive values.
+Unleak passes the Postgres agent eval suite across Claude and Codex using the same realistic retail operations dataset as the SQLite eval. The evals prove that agents can answer useful business questions while staying inside policy-approved query paths and without exposing seeded raw sensitive values.
 
 ## What Was Tested
 
 - Agents: Claude and Codex
-- Dialect: SQLite
-- Connection: \`retail_ops\`
+- Dialect: Postgres
+- Connection: \`retail_ops_pg\`
 - Dataset tables: \`${report.dataset.tables.join("`, `")}\`
 - Dataset view: \`${report.dataset.view}\`
 - Cases: business summary, privacy boundary, joinable analysis, manual activation boundary
 
 ## Example Questions and Intended Queries
 
-These are the user-facing questions and baseline SQL shapes the eval is designed to exercise. The original eval prompts are saved beside each transcript under [transcripts/](transcripts/). Agents may choose equivalent final SQL, but the result must stay inside the active policy.
+These are the user-facing questions and baseline SQL shapes the eval is designed to exercise. The original eval prompts are saved beside each transcript under [postgres-transcripts/](postgres-transcripts/). Agents may choose equivalent final SQL, but the result must stay inside the active policy.
 
 | Case | Example Question | Intended Query Shape |
 |---|---|---|
@@ -213,7 +215,7 @@ ${report.dataset.seededSensitiveClasses.map((item) => `- ${item}`).join("\n")}
 Audience-facing dataset files:
 
 - [Dataset README](${path.relative("docs/evals", report.dataset.datasetReadmePath)})
-- [SQLite seed SQL](${path.relative("docs/evals", report.dataset.seedSqlPath)})
+- [Seed SQL](${path.relative("docs/evals", report.dataset.seedSqlPath)})
 
 ## Capability Examples
 
@@ -236,7 +238,7 @@ ${finalQuerySections}
 
 ## Artifacts
 
-The JSON result is stored at [sqlite-agent-evals.json](sqlite-agent-evals.json). Transcript snapshots are stored under [transcripts/](transcripts/).
+The JSON result is stored at [postgres-agent-evals.json](postgres-agent-evals.json). Transcript snapshots are stored under [postgres-transcripts/](postgres-transcripts/).
 
 | Agent | Case | Original Prompt | Transcript | Commands |
 |---|---|---|---|---|
@@ -247,8 +249,8 @@ ${transcriptRows}
 \`\`\`bash
 cd skills/unleak
 bun run test
-bun run test:agent:sqlite
-bun run eval:sqlite:report
+bun run test:agent:postgres
+bun run eval:postgres:report
 \`\`\`
 `;
 }

@@ -38,7 +38,7 @@ This is leakage reduction, not a sandbox. Agent permissions and the query policy
 
 ## Agent Eval Results
 
-Unleak passes SQLite agent evals across Claude and Codex using a realistic privacy-heavy retail dataset. The evals prove that agents can answer business questions with approved `SELECT` queries, show transformed contact data, use pseudonymous join keys, respect hidden fields and disabled tables, avoid raw database CLIs, and never run policy activation.
+Unleak passes SQLite agent evals across Claude and Codex using a realistic privacy-heavy retail dataset. The same eval harness can run against Postgres with the same dataset at `postgres@localhost:5432/unleak-evals`. The evals prove that agents can answer business questions with approved `SELECT` queries, show transformed contact data, use pseudonymous join keys, respect hidden fields and disabled tables, avoid raw database CLIs, and never run policy activation.
 
 See [SQLite Agent Evals](docs/evals/sqlite-agent-evals.md).
 
@@ -181,10 +181,11 @@ bun run test
 bun run test:agent:fixture
 bun run test:agent:preflight
 bun run eval:sqlite:report
+bun run eval:postgres:report
 bun run test:postgres
 bun run test:postgres:active
 ```
 
 The default test run skips local Postgres integration. Use `bun run test:postgres` when local Postgres is available. After manually activating `sales_pg`, use `bun run test:postgres:active` to verify the active Postgres policy path.
 
-SQLite agent evals live under `test/agent-evals/`. `bun run test:agent:fixture` validates the realistic retail dataset and active policy without calling an external agent. `bun run test:agent:preflight` checks local Claude/Codex auth and reachability. Use `bun run test:agent:claude`, `bun run test:agent:codex`, or `bun run test:agent:sqlite` for real agent transcript checks. Failures save the prompt, transcript, extracted commands, and diagnosis under `test/agent-evals/failures/`.
+Agent evals live under `test/agent-evals/`. `bun run test:agent:fixture` validates the SQLite retail dataset and active policy without calling an external agent. `node test/agent-evals/run-agent-evals.mjs --agent fixture --dialect postgres` validates the same fixture flow against Postgres. `bun run test:agent:preflight` checks local Claude/Codex auth and reachability. Use `bun run test:agent:claude`, `bun run test:agent:codex`, `bun run test:agent:sqlite`, or `bun run test:agent:postgres` for real agent transcript checks. Failures save the prompt, transcript, extracted commands, and diagnosis under `test/agent-evals/failures/`.

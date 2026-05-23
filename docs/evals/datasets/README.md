@@ -1,6 +1,6 @@
-# Retail Ops SQLite Eval Dataset
+# Retail Ops Eval Dataset
 
-This folder contains the public seed SQL for the SQLite agent eval fixture. It is a fictional retail operations dataset designed to demonstrate Unleak's privacy controls.
+This folder contains the public seed SQL for the agent eval fixture. It is a fictional retail operations dataset designed to demonstrate Unleak's privacy controls.
 
 ## Files
 
@@ -21,4 +21,4 @@ This folder contains the public seed SQL for the SQLite agent eval fixture. It i
 sqlite3 retail_ops.sqlite < retail_ops_seed.sql
 ```
 
-The real eval harness creates the same dataset automatically in a temporary project and activates an Unleak policy before running Claude and Codex.
+The real eval harness creates the same dataset automatically in SQLite or Postgres and activates an Unleak policy before running Claude and Codex.

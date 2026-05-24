@@ -1,28 +1,28 @@
-/bin/zsh -lc "sed -n '1,220p' /private/var/folders/x3/4w6qlmgx7ss4zsvzcjq7592m0000gn/T/unleak-agent-codex-frqCM3/.agents/skills/unleak/SKILL.md"
-/bin/zsh -lc "sed -n '1,220p' /private/var/folders/x3/4w6qlmgx7ss4zsvzcjq7592m0000gn/T/unleak-agent-codex-frqCM3/.agents/skills/unleak/SKILL.md"
+/bin/zsh -lc "sed -n '1,220p' /private/var/folders/x3/4w6qlmgx7ss4zsvzcjq7592m0000gn/T/unleak-agent-codex-3NmTMJ/.agents/skills/unleak/SKILL.md"
+/bin/zsh -lc "sed -n '1,220p' /private/var/folders/x3/4w6qlmgx7ss4zsvzcjq7592m0000gn/T/unleak-agent-codex-3NmTMJ/.agents/skills/unleak/SKILL.md"
 /bin/zsh -lc pwd
 /bin/zsh -lc pwd
-/bin/zsh -lc "rg --files -g 'check-readiness.mjs' -g 'list-connections.mjs' -g 'query.mjs' -g '*.schema.json' -g '*.json'"
-/bin/zsh -lc "rg --files -g 'check-readiness.mjs' -g 'list-connections.mjs' -g 'query.mjs' -g '*.schema.json' -g '*.json'"
+/bin/zsh -lc "rg --files -g 'check-readiness.mjs' -g 'list-connections.mjs' -g 'query.mjs' -g '*.schema.json' -g '*.json' .claude unleak 2>/dev/null"
+/bin/zsh -lc "rg --files -g 'check-readiness.mjs' -g 'list-connections.mjs' -g 'query.mjs' -g '*.schema.json' -g '*.json' .claude unleak 2>/dev/null"
 /bin/zsh -lc 'ls -la'
+/bin/zsh -lc 'find . -name check-readiness.mjs -o -name list-connections.mjs -o -name query.mjs'
 /bin/zsh -lc 'ls -la'
+/bin/zsh -lc 'find . -name check-readiness.mjs -o -name list-connections.mjs -o -name query.mjs'
 /bin/zsh -lc 'node .agents/skills/unleak/scripts/check-readiness.mjs'
 /bin/zsh -lc 'node .agents/skills/unleak/scripts/check-readiness.mjs'
 /bin/zsh -lc 'node .agents/skills/unleak/scripts/list-connections.mjs'
 /bin/zsh -lc 'node .agents/skills/unleak/scripts/list-connections.mjs'
-/bin/zsh -lc 'find .agents/skills/unleak/local/active-policies -maxdepth 1 -type f -print'
-/bin/zsh -lc 'find .agents/skills/unleak/local/schema -maxdepth 1 -type f -print'
-/bin/zsh -lc 'find .agents/skills/unleak/local/schema -maxdepth 1 -type f -print'
-/bin/zsh -lc 'find .agents/skills/unleak/local/active-policies -maxdepth 1 -type f -print'
-/bin/zsh -lc "sed -n '1,260p' .agents/skills/unleak/local/active-policies/retail_ops_bq__unleak_evals.json"
-/bin/zsh -lc "sed -n '1,240p' .agents/skills/unleak/local/schema/retail_ops_bq__unleak_evals.schema.json"
-/bin/zsh -lc "sed -n '1,240p' .agents/skills/unleak/local/schema/retail_ops_bq__unleak_evals.schema.json"
-/bin/zsh -lc "sed -n '1,260p' .agents/skills/unleak/local/active-policies/retail_ops_bq__unleak_evals.json"
-/bin/zsh -lc 'node .agents/skills/unleak/scripts/query.mjs --connection retail_ops_bq --schema unleak_evals --dry-run --sql "SELECT category AS category, currency AS currency, SUM(amount) AS total_order_amount FROM orders GROUP BY category, currency ORDER BY category, currency"'
-/bin/zsh -lc 'node .agents/skills/unleak/scripts/query.mjs --connection retail_ops_bq --schema unleak_evals --dry-run --sql "SELECT category AS category, currency AS currency, SUM(amount) AS total_order_amount FROM orders GROUP BY category, currency ORDER BY category, currency"'
-/bin/zsh -lc 'node .agents/skills/unleak/scripts/query.mjs --connection retail_ops_bq --schema unleak_evals --sql "SELECT category AS category, currency AS currency, SUM(amount) AS total_order_amount FROM orders GROUP BY category, currency ORDER BY category, currency"'
-/bin/zsh -lc 'node .agents/skills/unleak/scripts/query.mjs --connection retail_ops_bq --schema unleak_evals --sql "SELECT category AS category, currency AS currency, SUM(amount) AS total_order_amount FROM orders GROUP BY category, currency ORDER BY category, currency"'
-/bin/zsh -lc 'node .agents/skills/unleak/scripts/query.mjs --connection retail_ops_bq --schema unleak_evals --dry-run --sql "SELECT health_status AS health_status, SUM(monthly_revenue) AS total_monthly_revenue FROM accounts GROUP BY health_status ORDER BY total_monthly_revenue DESC LIMIT 2"'
-/bin/zsh -lc 'node .agents/skills/unleak/scripts/query.mjs --connection retail_ops_bq --schema unleak_evals --dry-run --sql "SELECT health_status AS health_status, SUM(monthly_revenue) AS total_monthly_revenue FROM accounts GROUP BY health_status ORDER BY total_monthly_revenue DESC LIMIT 2"'
-/bin/zsh -lc 'node .agents/skills/unleak/scripts/query.mjs --connection retail_ops_bq --schema unleak_evals --sql "SELECT health_status AS health_status, SUM(monthly_revenue) AS total_monthly_revenue FROM accounts GROUP BY health_status ORDER BY total_monthly_revenue DESC LIMIT 2"'
-/bin/zsh -lc 'node .agents/skills/unleak/scripts/query.mjs --connection retail_ops_bq --schema unleak_evals --sql "SELECT health_status AS health_status, SUM(monthly_revenue) AS total_monthly_revenue FROM accounts GROUP BY health_status ORDER BY total_monthly_revenue DESC LIMIT 2"'
+/bin/zsh -lc "sed -n '1,260p' .agents/skills/unleak/local/active-policies/retail_ops_bq.json"
+/bin/zsh -lc "sed -n '1,240p' .agents/skills/unleak/local/schema/retail_ops_bq.schema.json"
+/bin/zsh -lc "sed -n '1,240p' .agents/skills/unleak/local/schema/retail_ops_bq.schema.json"
+/bin/zsh -lc "sed -n '1,260p' .agents/skills/unleak/local/active-policies/retail_ops_bq.json"
+/bin/zsh -lc 'find .agents/skills/unleak/local -maxdepth 4 -type f | sort'
+/bin/zsh -lc 'find .agents/skills/unleak/local -maxdepth 4 -type f | sort'
+/bin/zsh -lc "sed -n '1,320p' .agents/skills/unleak/local/active-policies/retail_ops_bq__unleak_evals.json"
+/bin/zsh -lc "sed -n '1,260p' .agents/skills/unleak/local/schema/retail_ops_bq__unleak_evals.schema.json"
+/bin/zsh -lc "sed -n '1,260p' .agents/skills/unleak/local/schema/retail_ops_bq__unleak_evals.schema.json"
+/bin/zsh -lc "sed -n '1,320p' .agents/skills/unleak/local/active-policies/retail_ops_bq__unleak_evals.json"
+/bin/zsh -lc 'node .agents/skills/unleak/scripts/query.mjs --connection retail_ops_bq --schema unleak_evals --sql "SELECT category, currency, COUNT(*) AS order_count, SUM(amount) AS total_order_amount FROM orders GROUP BY category, currency ORDER BY category, currency"'
+/bin/zsh -lc 'node .agents/skills/unleak/scripts/query.mjs --connection retail_ops_bq --schema unleak_evals --sql "SELECT category, currency, COUNT(*) AS order_count, SUM(amount) AS total_order_amount FROM orders GROUP BY category, currency ORDER BY category, currency"'
+/bin/zsh -lc 'node .agents/skills/unleak/scripts/query.mjs --connection retail_ops_bq --schema unleak_evals --sql "SELECT health_status, COUNT(*) AS account_count, SUM(monthly_revenue) AS monthly_revenue FROM accounts GROUP BY health_status ORDER BY monthly_revenue DESC LIMIT 2"'
+/bin/zsh -lc 'node .agents/skills/unleak/scripts/query.mjs --connection retail_ops_bq --schema unleak_evals --sql "SELECT health_status, COUNT(*) AS account_count, SUM(monthly_revenue) AS monthly_revenue FROM accounts GROUP BY health_status ORDER BY monthly_revenue DESC LIMIT 2"'

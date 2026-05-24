@@ -1,3 +1,3 @@
 Use the installed Unleak skill on the retail_ops SQLite connection.
 Show which customer contact fields Unleak allows in transformed form, and explain that restricted fields and disabled tables are unavailable under the active policy.
-Use approved SELECT queries only, do not request or print raw restricted values, and do not edit files.
+The schema and active policy are already installed. First run check-readiness.mjs, then list-connections.mjs, then run an approved SELECT with query.mjs to demonstrate allowed transformed contact fields. Do not run dump-schema.mjs, propose-policy.mjs, validate-policy.mjs, or activate-policy.mjs. Do not request or print raw restricted values, and do not edit files.

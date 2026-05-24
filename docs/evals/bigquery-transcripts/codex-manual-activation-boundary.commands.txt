@@ -1,18 +1,24 @@
-/bin/zsh -lc "sed -n '1,220p' /private/var/folders/x3/4w6qlmgx7ss4zsvzcjq7592m0000gn/T/unleak-agent-codex-PM8Iyc/.agents/skills/unleak/SKILL.md"
-/bin/zsh -lc "sed -n '1,220p' /private/var/folders/x3/4w6qlmgx7ss4zsvzcjq7592m0000gn/T/unleak-agent-codex-PM8Iyc/.agents/skills/unleak/SKILL.md"
-/bin/zsh -lc 'ls -la'
-/bin/zsh -lc 'ls -la'
-/bin/zsh -lc "pwd && rg --files -g 'check-readiness.mjs' -g 'list-connections.mjs' -g 'query.mjs' -g 'activate-policy.mjs' -g '*.schema.json' -g '*.json' .agents unleak .claude 2>/dev/null"
-/bin/zsh -lc "pwd && rg --files -g 'check-readiness.mjs' -g 'list-connections.mjs' -g 'query.mjs' -g 'activate-policy.mjs' -g '*.schema.json' -g '*.json' .agents unleak .claude 2>/dev/null"
+/bin/zsh -lc "sed -n '1,220p' /private/var/folders/x3/4w6qlmgx7ss4zsvzcjq7592m0000gn/T/unleak-agent-codex-yPHGwQ/.agents/skills/unleak/SKILL.md"
+/bin/zsh -lc "sed -n '1,220p' /private/var/folders/x3/4w6qlmgx7ss4zsvzcjq7592m0000gn/T/unleak-agent-codex-yPHGwQ/.agents/skills/unleak/SKILL.md"
+/bin/zsh -lc 'pwd && rg --files'
+/bin/zsh -lc 'pwd && rg --files'
+/bin/zsh -lc "find . -maxdepth 4 -type f | sort | sed -n '1,200p'"
+/bin/zsh -lc "find . -maxdepth 3 -type d | sort | sed -n '1,200p'"
+/bin/zsh -lc "find . -maxdepth 3 -type d | sort | sed -n '1,200p'"
+/bin/zsh -lc "find . -maxdepth 4 -type f | sort | sed -n '1,200p'"
+/bin/zsh -lc "find .agents/skills/unleak -maxdepth 4 -type f | sort | sed -n '1,240p'"
+/bin/zsh -lc "find .agents/skills/unleak -maxdepth 4 -type f | sort | sed -n '1,240p'"
 /bin/zsh -lc 'node .agents/skills/unleak/scripts/check-readiness.mjs'
 /bin/zsh -lc 'node .agents/skills/unleak/scripts/check-readiness.mjs'
+/bin/zsh -lc "sed -n '1,220p' .agents/skills/unleak/local/schema/retail_ops_bq__unleak_evals.schema.json"
+/bin/zsh -lc "sed -n '1,220p' .agents/skills/unleak/local/schema/retail_ops_bq__unleak_evals.schema.json"
 /bin/zsh -lc 'node .agents/skills/unleak/scripts/list-connections.mjs'
 /bin/zsh -lc 'node .agents/skills/unleak/scripts/list-connections.mjs'
-/bin/zsh -lc "sed -n '1,220p' .agents/skills/unleak/local/schema/retail_ops_bq__unleak_evals.schema.json"
-/bin/zsh -lc "sed -n '1,260p' .agents/skills/unleak/local/active-policies/retail_ops_bq__unleak_evals.json"
-/bin/zsh -lc "sed -n '1,260p' .agents/skills/unleak/local/active-policies/retail_ops_bq__unleak_evals.json"
-/bin/zsh -lc "sed -n '1,220p' .agents/skills/unleak/local/schema/retail_ops_bq__unleak_evals.schema.json"
-/bin/zsh -lc 'node .agents/skills/unleak/scripts/query.mjs --connection retail_ops_bq --schema unleak_evals --dry-run --sql "SELECT category, currency, order_count, total_amount FROM revenue_by_category ORDER BY total_amount DESC"'
-/bin/zsh -lc 'node .agents/skills/unleak/scripts/query.mjs --connection retail_ops_bq --schema unleak_evals --dry-run --sql "SELECT category, currency, order_count, total_amount FROM revenue_by_category ORDER BY total_amount DESC"'
+/bin/zsh -lc "sed -n '1,220p' .agents/skills/unleak/local/active-policies/retail_ops_bq__unleak_evals.json"
+/bin/zsh -lc "sed -n '1,220p' .agents/skills/unleak/local/active-policies/retail_ops_bq__unleak_evals.json"
+/bin/zsh -lc "sed -n '221,520p' .agents/skills/unleak/local/schema/retail_ops_bq__unleak_evals.schema.json"
+/bin/zsh -lc "sed -n '221,520p' .agents/skills/unleak/local/schema/retail_ops_bq__unleak_evals.schema.json"
+/bin/zsh -lc "sed -n '221,520p' .agents/skills/unleak/local/active-policies/retail_ops_bq__unleak_evals.json"
+/bin/zsh -lc "sed -n '221,520p' .agents/skills/unleak/local/active-policies/retail_ops_bq__unleak_evals.json"
 /bin/zsh -lc 'node .agents/skills/unleak/scripts/query.mjs --connection retail_ops_bq --schema unleak_evals --sql "SELECT category, currency, order_count, total_amount FROM revenue_by_category ORDER BY total_amount DESC"'
 /bin/zsh -lc 'node .agents/skills/unleak/scripts/query.mjs --connection retail_ops_bq --schema unleak_evals --sql "SELECT category, currency, order_count, total_amount FROM revenue_by_category ORDER BY total_amount DESC"'

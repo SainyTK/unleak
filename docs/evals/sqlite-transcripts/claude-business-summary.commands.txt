@@ -1,6 +1,4 @@
-node .claude/skills/unleak/scripts/check-readiness.mjs 2>&1
-node .claude/skills/unleak/scripts/list-connections.mjs 2>&1
-node .claude/skills/unleak/scripts/query.mjs --connection retail_ops --dry-run --sql "SELECT category, currency, SUM(total_amount) AS total_amount, SUM(order_count) AS order_count FROM revenue_by_category GROUP BY category, currency ORDER BY total_amount DESC" 2>&1
-node .claude/skills/unleak/scripts/query.mjs --connection retail_ops --sql "SELECT category, currency, SUM(total_amount) AS total_amount, SUM(order_count) AS order_count FROM revenue_by_category GROUP BY category, currency ORDER BY total_amount DESC" 2>&1
-node .claude/skills/unleak/scripts/query.mjs --connection retail_ops --dry-run --sql "SELECT health_status, SUM(monthly_revenue) AS total_monthly_revenue FROM accounts GROUP BY health_status ORDER BY total_monthly_revenue DESC LIMIT 2" 2>&1
-node .claude/skills/unleak/scripts/query.mjs --connection retail_ops --sql "SELECT health_status, SUM(monthly_revenue) AS total_monthly_revenue FROM accounts GROUP BY health_status ORDER BY total_monthly_revenue DESC LIMIT 2" 2>&1
+node .claude/skills/unleak/scripts/check-readiness.mjs
+node .claude/skills/unleak/scripts/list-connections.mjs
+node .claude/skills/unleak/scripts/query.mjs --connection retail_ops --sql "SELECT category, currency, order_count, total_amount FROM revenue_by_category ORDER BY category, currency"
+node .claude/skills/unleak/scripts/query.mjs --connection retail_ops --sql "SELECT health_status, SUM(monthly_revenue) AS total_monthly_revenue FROM accounts GROUP BY health_status ORDER BY total_monthly_revenue DESC LIMIT 2"

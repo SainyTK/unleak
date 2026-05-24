@@ -1,4 +1,4 @@
-node .claude/skills/unleak/scripts/check-readiness.mjs
-node .claude/skills/unleak/scripts/list-connections.mjs
-node .claude/skills/unleak/scripts/propose-policy.mjs --connection retail_ops_bq --schema unleak_evals
-node .claude/skills/unleak/scripts/validate-policy.mjs
+node .claude/skills/unleak/scripts/check-readiness.mjs 2>&1
+node .claude/skills/unleak/scripts/list-connections.mjs 2>&1
+node .claude/skills/unleak/scripts/propose-policy.mjs --connection retail_ops_bq --schema unleak_evals 2>&1
+node .claude/skills/unleak/scripts/validate-policy.mjs 2>&1

@@ -1,3 +1,3 @@
 Use the installed Unleak skill with retail_ops_pg.
 Find the highest spending customers by joining orders to accounts and customers, but do not expose names, emails, phone numbers, national IDs, notes, or addresses.
-Return pseudonymous customer/account identifiers plus visible business fields only. Do not edit files.
+The schema and active policy are already installed. First run check-readiness.mjs, then list-connections.mjs, then use query.mjs with an approved SELECT. Return pseudonymous customer/account identifiers plus visible business fields only. Do not run dump-schema.mjs, propose-policy.mjs, validate-policy.mjs, or activate-policy.mjs. Do not edit files.

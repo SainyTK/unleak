@@ -1,4 +1,6 @@
 node .claude/skills/unleak/scripts/check-readiness.mjs
 node .claude/skills/unleak/scripts/list-connections.mjs
+ls .claude/skills/unleak/local/schema/ 2>/dev/null && ls .claude/skills/unleak/local/active-policies/ 2>/dev/null
+ls unleak-policy-review/ 2>/dev/null || echo "no proposed policy directory"
 node .claude/skills/unleak/scripts/propose-policy.mjs
 node .claude/skills/unleak/scripts/validate-policy.mjs

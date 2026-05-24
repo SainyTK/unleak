@@ -38,16 +38,17 @@ This is leakage reduction, not a sandbox. Agent permissions and the query policy
 
 ## Agent Eval Results
 
-Unleak passes SQLite, Postgres, and BigQuery agent evals across Claude and Codex using a realistic privacy-heavy retail dataset. The evals prove that agents can answer business questions with approved `SELECT` queries, show transformed contact data, use pseudonymous join keys, respect hidden fields and disabled tables, avoid raw database CLIs, and never run policy activation.
+Unleak passes SQLite, Postgres, MySQL, and BigQuery agent evals across Claude and Codex using a realistic privacy-heavy retail dataset. The evals prove that agents can answer business questions with approved `SELECT` queries, show transformed contact data, use pseudonymous join keys, respect hidden fields and disabled tables, avoid raw database CLIs, and never run policy activation.
 
 Reports and reproducibility assets:
 
 - [SQLite Agent Evals](docs/evals/sqlite-agent-evals.md)
 - [Postgres Agent Evals](docs/evals/postgres-agent-evals.md)
+- [MySQL Agent Evals](docs/evals/mysql-agent-evals.md)
 - [BigQuery Agent Evals](docs/evals/bigquery-agent-evals.md)
 - [Retail Ops Eval Dataset](docs/evals/datasets/README.md)
-- JSON results at `docs/evals/sqlite-agent-evals.json`, `docs/evals/postgres-agent-evals.json`, and `docs/evals/bigquery-agent-evals.json`
-- Transcript snapshots at `docs/evals/sqlite-transcripts/`, `docs/evals/postgres-transcripts/`, and `docs/evals/bigquery-transcripts/`
+- JSON results at `docs/evals/sqlite-agent-evals.json`, `docs/evals/postgres-agent-evals.json`, `docs/evals/mysql-agent-evals.json`, and `docs/evals/bigquery-agent-evals.json`
+- Transcript snapshots at `docs/evals/sqlite-transcripts/`, `docs/evals/postgres-transcripts/`, `docs/evals/mysql-transcripts/`, and `docs/evals/bigquery-transcripts/`
 
 Rebuild the public reports:
 
@@ -55,6 +56,7 @@ Rebuild the public reports:
 cd skills/unleak
 bun run eval:sqlite:report
 bun run eval:postgres:report
+bun run eval:mysql:report
 bun run eval:bigquery:report
 ```
 
@@ -198,6 +200,7 @@ bun run test:agent:fixture
 bun run test:agent:preflight
 bun run eval:sqlite:report
 bun run eval:postgres:report
+bun run eval:mysql:report
 bun run eval:bigquery:report
 bun run test:postgres
 bun run test:postgres:active
@@ -205,4 +208,4 @@ bun run test:postgres:active
 
 The default test run skips local Postgres integration. Use `bun run test:postgres` when local Postgres is available. After manually activating `sales_pg`, use `bun run test:postgres:active` to verify the active Postgres policy path.
 
-Agent evals live under `test/agent-evals/`. `bun run test:agent:fixture` validates the SQLite retail dataset and active policy without calling an external agent. `node test/agent-evals/run-agent-evals.mjs --agent fixture --dialect postgres` validates the same fixture flow against Postgres, and `node test/agent-evals/run-agent-evals.mjs --agent fixture --dialect bigquery` validates the BigQuery fixture flow. `bun run test:agent:preflight` checks local Claude/Codex auth and reachability. Use `bun run test:agent:claude`, `bun run test:agent:codex`, `bun run test:agent:sqlite`, `bun run test:agent:postgres`, or `bun run test:agent:bigquery` for real agent transcript checks. Failures save the prompt, transcript, extracted commands, and diagnosis under `test/agent-evals/failures/`.
+Agent evals live under `test/agent-evals/`. `bun run test:agent:fixture` validates the SQLite retail dataset and active policy without calling an external agent. `node test/agent-evals/run-agent-evals.mjs --agent fixture --dialect postgres` validates the same fixture flow against Postgres, `node test/agent-evals/run-agent-evals.mjs --agent fixture --dialect mysql` validates the MySQL fixture flow, and `node test/agent-evals/run-agent-evals.mjs --agent fixture --dialect bigquery` validates the BigQuery fixture flow. `bun run test:agent:preflight` checks local Claude/Codex auth and reachability. Use `bun run test:agent:claude`, `bun run test:agent:codex`, `bun run test:agent:sqlite`, `bun run test:agent:postgres`, `bun run test:agent:mysql`, or `bun run test:agent:bigquery` for real agent transcript checks. Failures save the prompt, transcript, extracted commands, and diagnosis under `test/agent-evals/failures/`.

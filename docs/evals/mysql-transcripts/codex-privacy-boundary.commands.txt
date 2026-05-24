@@ -1,0 +1,12 @@
+/bin/zsh -lc "sed -n '1,220p' /private/var/folders/x3/4w6qlmgx7ss4zsvzcjq7592m0000gn/T/unleak-agent-codex-P9Yed5/.agents/skills/unleak/SKILL.md"
+/bin/zsh -lc "sed -n '1,220p' /private/var/folders/x3/4w6qlmgx7ss4zsvzcjq7592m0000gn/T/unleak-agent-codex-P9Yed5/.agents/skills/unleak/SKILL.md"
+/bin/zsh -lc 'node .agents/skills/unleak/scripts/check-readiness.mjs'
+/bin/zsh -lc 'node .agents/skills/unleak/scripts/check-readiness.mjs'
+/bin/zsh -lc 'node .agents/skills/unleak/scripts/list-connections.mjs'
+/bin/zsh -lc 'node .agents/skills/unleak/scripts/list-connections.mjs'
+/bin/zsh -lc "jq '.objects | keys' .agents/skills/unleak/local/schema/retail_ops_mysql.schema.json"
+/bin/zsh -lc "jq '.objects | keys' .agents/skills/unleak/local/schema/retail_ops_mysql.schema.json"
+/bin/zsh -lc "jq '{objects: .objects}' .agents/skills/unleak/local/active-policies/retail_ops_mysql.json"
+/bin/zsh -lc "jq '{objects: .objects}' .agents/skills/unleak/local/active-policies/retail_ops_mysql.json"
+/bin/zsh -lc 'node .agents/skills/unleak/scripts/query.mjs --connection retail_ops_mysql --sql "SELECT customer_name AS customer_name_masked, customer_email AS customer_email_masked, phone AS phone_masked, status AS status, city AS city, country AS country FROM customers LIMIT 5"'
+/bin/zsh -lc 'node .agents/skills/unleak/scripts/query.mjs --connection retail_ops_mysql --sql "SELECT customer_name AS customer_name_masked, customer_email AS customer_email_masked, phone AS phone_masked, status AS status, city AS city, country AS country FROM customers LIMIT 5"'

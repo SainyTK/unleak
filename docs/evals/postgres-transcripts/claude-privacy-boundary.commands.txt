@@ -1,4 +1,3 @@
-node .claude/skills/unleak/scripts/check-readiness.mjs
-node .claude/skills/unleak/scripts/list-connections.mjs
-node .claude/skills/unleak/scripts/query.mjs --connection retail_ops_pg --sql "SELECT id, customer_name, customer_email, phone, status, city, country, signup_date, vip_score FROM customers ORDER BY id LIMIT 10"
-node .claude/skills/unleak/scripts/query.mjs --connection retail_ops_pg --sql "SELECT id, customer_name, customer_email, phone, status, city, country, signup_date, vip_score FROM customers ORDER BY signup_date LIMIT 10"
+node .claude/skills/unleak/scripts/check-readiness.mjs 2>&1
+node .claude/skills/unleak/scripts/list-connections.mjs 2>&1
+node .claude/skills/unleak/scripts/query.mjs --connection retail_ops_pg --sql "SELECT c.id, c.customer_name, c.customer_email, c.phone, c.status, c.city, c.country FROM customers c ORDER BY c.status, c.city LIMIT 10" 2>&1

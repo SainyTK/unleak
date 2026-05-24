@@ -7,12 +7,13 @@ const skillRoot = path.resolve(import.meta.dirname, "../..");
 const repoRoot = path.resolve(skillRoot, "../..");
 const docsDir = path.join(repoRoot, "docs", "evals");
 const transcriptsDir = path.join(docsDir, "bigquery-transcripts");
+const tempTranscriptsDir = path.join(docsDir, `.bigquery-transcripts.tmp-${process.pid}`);
 const datasetsDir = path.join(docsDir, "datasets");
 const resultPath = path.join(docsDir, "bigquery-agent-evals.json");
 const reportPath = path.join(docsDir, "bigquery-agent-evals.md");
 
-fs.rmSync(transcriptsDir, { recursive: true, force: true });
-fs.mkdirSync(transcriptsDir, { recursive: true });
+fs.rmSync(tempTranscriptsDir, { recursive: true, force: true });
+fs.mkdirSync(tempTranscriptsDir, { recursive: true });
 fs.mkdirSync(datasetsDir, { recursive: true });
 
 const command = [
@@ -23,7 +24,7 @@ const command = [
   "--dialect",
   "bigquery",
   "--artifacts-dir",
-  path.relative(skillRoot, transcriptsDir)
+  path.relative(skillRoot, tempTranscriptsDir)
 ];
 
 const run = spawnSync(command[0], command.slice(1), {
@@ -34,12 +35,15 @@ const run = spawnSync(command[0], command.slice(1), {
 });
 
 if (run.status !== 0) {
+  fs.rmSync(tempTranscriptsDir, { recursive: true, force: true });
   process.stdout.write(run.stdout);
   process.stderr.write(run.stderr);
   process.exit(run.status ?? 1);
 }
 
 const result = JSON.parse(run.stdout);
+fs.rmSync(transcriptsDir, { recursive: true, force: true });
+fs.renameSync(tempTranscriptsDir, transcriptsDir);
 const generatedAt = new Date().toISOString();
 const report = {
   generatedAt,
@@ -83,7 +87,16 @@ function sanitizeResult(result) {
 }
 
 function relFromSkill(file) {
-  return path.relative(repoRoot, path.resolve(skillRoot, file));
+  return path.relative(repoRoot, finalArtifactPath(file));
+}
+
+function finalArtifactPath(file) {
+  const resolved = path.resolve(skillRoot, file);
+  const relativeToTemp = path.relative(tempTranscriptsDir, resolved);
+  if (!relativeToTemp.startsWith("..") && !path.isAbsolute(relativeToTemp)) {
+    return path.join(transcriptsDir, relativeToTemp);
+  }
+  return resolved;
 }
 
 function datasetSummary() {
@@ -390,7 +403,7 @@ INSERT INTO audit_log VALUES
 }
 
 function readRelFromSkill(file) {
-  return fs.readFileSync(path.resolve(skillRoot, file), "utf8");
+  return fs.readFileSync(finalArtifactPath(file), "utf8");
 }
 
 function extractFinalQueries(commands) {

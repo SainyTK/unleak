@@ -1,0 +1,26 @@
+/bin/zsh -lc "sed -n '1,220p' /private/var/folders/x3/4w6qlmgx7ss4zsvzcjq7592m0000gn/T/unleak-agent-codex-KLbL8q/.agents/skills/unleak/SKILL.md"
+/bin/zsh -lc "sed -n '1,220p' /private/var/folders/x3/4w6qlmgx7ss4zsvzcjq7592m0000gn/T/unleak-agent-codex-KLbL8q/.agents/skills/unleak/SKILL.md"
+/bin/zsh -lc "pwd && find . -maxdepth 3 -type d \\( -path './unleak' -o -path './.claude/skills/unleak' \\) -print"
+/bin/zsh -lc "rg --files -g 'check-readiness.mjs' -g 'list-connections.mjs' -g 'query.mjs' -g 'activate-policy.mjs'"
+/bin/zsh -lc "pwd && find . -maxdepth 3 -type d \\( -path './unleak' -o -path './.claude/skills/unleak' \\) -print"
+/bin/zsh -lc "rg --files -g 'check-readiness.mjs' -g 'list-connections.mjs' -g 'query.mjs' -g 'activate-policy.mjs'"
+/bin/zsh -lc "find . -maxdepth 4 -type f | sed 's#"'^./##'"' | head -100"
+/bin/zsh -lc "find . -maxdepth 4 -type f | sed 's#"'^./##'"' | head -100"
+/bin/zsh -lc 'node .agents/skills/unleak/scripts/check-readiness.mjs'
+/bin/zsh -lc 'node .agents/skills/unleak/scripts/check-readiness.mjs'
+/bin/zsh -lc 'node .agents/skills/unleak/scripts/list-connections.mjs'
+/bin/zsh -lc 'node .agents/skills/unleak/scripts/list-connections.mjs'
+/bin/zsh -lc "find unleak-policy-review -maxdepth 1 -type f -name 'retail_ops_mysql*.json' -print 2>/dev/null"
+/bin/zsh -lc "find .agents/skills/unleak/local/active-policies -maxdepth 1 -type f -name 'retail_ops_mysql*' -print"
+/bin/zsh -lc "find .agents/skills/unleak/local/schema -maxdepth 1 -type f -name 'retail_ops_mysql*' -print"
+/bin/zsh -lc "find unleak-policy-review -maxdepth 1 -type f -name 'retail_ops_mysql*.json' -print 2>/dev/null"
+/bin/zsh -lc "find .agents/skills/unleak/local/active-policies -maxdepth 1 -type f -name 'retail_ops_mysql*' -print"
+/bin/zsh -lc "find .agents/skills/unleak/local/schema -maxdepth 1 -type f -name 'retail_ops_mysql*' -print"
+/bin/zsh -lc "sed -n '1,240p' .agents/skills/unleak/local/active-policies/retail_ops_mysql.json"
+/bin/zsh -lc "sed -n '1,240p' .agents/skills/unleak/local/schema/retail_ops_mysql.schema.json"
+/bin/zsh -lc "sed -n '1,240p' .agents/skills/unleak/local/schema/retail_ops_mysql.schema.json"
+/bin/zsh -lc "sed -n '1,240p' .agents/skills/unleak/local/active-policies/retail_ops_mysql.json"
+/bin/zsh -lc "sed -n '241,520p' .agents/skills/unleak/local/schema/retail_ops_mysql.schema.json && sed -n '241,520p' .agents/skills/unleak/local/active-policies/retail_ops_mysql.json"
+/bin/zsh -lc "sed -n '241,520p' .agents/skills/unleak/local/schema/retail_ops_mysql.schema.json && sed -n '241,520p' .agents/skills/unleak/local/active-policies/retail_ops_mysql.json"
+/bin/zsh -lc 'node .agents/skills/unleak/scripts/query.mjs --connection retail_ops_mysql --sql "SELECT category, currency, order_count, total_amount FROM revenue_by_category ORDER BY total_amount DESC"'
+/bin/zsh -lc 'node .agents/skills/unleak/scripts/query.mjs --connection retail_ops_mysql --sql "SELECT category, currency, order_count, total_amount FROM revenue_by_category ORDER BY total_amount DESC"'

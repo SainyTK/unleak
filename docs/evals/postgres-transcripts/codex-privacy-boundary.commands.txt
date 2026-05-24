@@ -1,26 +1,20 @@
-/bin/zsh -lc "sed -n '1,220p' /private/var/folders/x3/4w6qlmgx7ss4zsvzcjq7592m0000gn/T/unleak-agent-codex-rFMU5Y/.agents/skills/unleak/SKILL.md"
-/bin/zsh -lc "sed -n '1,220p' /private/var/folders/x3/4w6qlmgx7ss4zsvzcjq7592m0000gn/T/unleak-agent-codex-rFMU5Y/.agents/skills/unleak/SKILL.md"
-/bin/zsh -lc 'node .claude/skills/unleak/scripts/check-readiness.mjs'
-/bin/zsh -lc 'node .claude/skills/unleak/scripts/check-readiness.mjs'
-/bin/zsh -lc 'node .claude/skills/unleak/scripts/list-connections.mjs'
-/bin/zsh -lc 'node .claude/skills/unleak/scripts/list-connections.mjs'
-/bin/zsh -lc "rg --files -g 'check-readiness.mjs' -g 'list-connections.mjs' -g '*.schema.json' -g '*.json'"
-/bin/zsh -lc "rg --files -g 'check-readiness.mjs' -g 'list-connections.mjs' -g '*.schema.json' -g '*.json'"
+/bin/zsh -lc "sed -n '1,220p' /private/var/folders/x3/4w6qlmgx7ss4zsvzcjq7592m0000gn/T/unleak-agent-codex-IMvRgS/.agents/skills/unleak/SKILL.md"
+/bin/zsh -lc "sed -n '1,220p' /private/var/folders/x3/4w6qlmgx7ss4zsvzcjq7592m0000gn/T/unleak-agent-codex-IMvRgS/.agents/skills/unleak/SKILL.md"
+/bin/zsh -lc "find . -maxdepth 4 -path '*unleak*scripts/check-readiness.mjs' -o -path './unleak/scripts/check-readiness.mjs' -o -path './.claude/skills/unleak/scripts/check-readiness.mjs' -o -path './.agents/skills/unleak/scripts/check-readiness.mjs'"
+/bin/zsh -lc "find . -maxdepth 4 -path '*unleak*scripts/check-readiness.mjs' -o -path './unleak/scripts/check-readiness.mjs' -o -path './.claude/skills/unleak/scripts/check-readiness.mjs' -o -path './.agents/skills/unleak/scripts/check-readiness.mjs'"
+/bin/zsh -lc "find . -maxdepth 5 -type f -name 'check-readiness.mjs' -print"
+/bin/zsh -lc "find . -maxdepth 5 -type f -name 'check-readiness.mjs' -print"
 /bin/zsh -lc 'ls -la'
 /bin/zsh -lc 'ls -la'
-/bin/zsh -lc "find .agents -maxdepth 4 -type f | sort | sed -n '1,120p'"
-/bin/zsh -lc "find .agents -maxdepth 4 -type f | sort | sed -n '1,120p'"
-/bin/zsh -lc 'node .agents/skills/unleak/scripts/list-connections.mjs'
+/bin/zsh -lc "find . -maxdepth 3 -type d -name 'unleak' -print"
+/bin/zsh -lc "find . -maxdepth 3 -type d -name 'unleak' -print"
+/bin/zsh -lc 'node .agents/skills/unleak/scripts/check-readiness.mjs'
 /bin/zsh -lc 'node .agents/skills/unleak/scripts/check-readiness.mjs'
 /bin/zsh -lc 'node .agents/skills/unleak/scripts/list-connections.mjs'
-/bin/zsh -lc 'node .agents/skills/unleak/scripts/check-readiness.mjs'
-/bin/zsh -lc "sed -n '1,260p' .agents/skills/unleak/local/active-policies/retail_ops_pg.json"
-/bin/zsh -lc "sed -n '1,240p' .agents/skills/unleak/local/schema/retail_ops_pg.schema.json"
-/bin/zsh -lc "sed -n '1,260p' .agents/skills/unleak/local/active-policies/retail_ops_pg.json"
-/bin/zsh -lc "sed -n '1,240p' .agents/skills/unleak/local/schema/retail_ops_pg.schema.json"
-/bin/zsh -lc "sed -n '241,520p' .agents/skills/unleak/local/schema/retail_ops_pg.schema.json"
-/bin/zsh -lc "sed -n '241,520p' .agents/skills/unleak/local/schema/retail_ops_pg.schema.json"
-/bin/zsh -lc 'node .agents/skills/unleak/scripts/query.mjs --connection retail_ops_pg --dry-run --sql "SELECT customer_name AS masked_customer_name, customer_email AS masked_customer_email, phone AS masked_phone FROM customers LIMIT 5"'
-/bin/zsh -lc 'node .agents/skills/unleak/scripts/query.mjs --connection retail_ops_pg --dry-run --sql "SELECT customer_name AS masked_customer_name, customer_email AS masked_customer_email, phone AS masked_phone FROM customers LIMIT 5"'
-/bin/zsh -lc 'node .agents/skills/unleak/scripts/query.mjs --connection retail_ops_pg --sql "SELECT customer_name AS masked_customer_name, customer_email AS masked_customer_email, phone AS masked_phone FROM customers LIMIT 5"'
-/bin/zsh -lc 'node .agents/skills/unleak/scripts/query.mjs --connection retail_ops_pg --sql "SELECT customer_name AS masked_customer_name, customer_email AS masked_customer_email, phone AS masked_phone FROM customers LIMIT 5"'
+/bin/zsh -lc 'node .agents/skills/unleak/scripts/list-connections.mjs'
+/bin/zsh -lc "jq '.objects[] | {name, objectPolicy, columns: [.columns[] | {name, policy, capabilities}]}' .agents/skills/unleak/local/active-policies/retail_ops_pg.json"
+/bin/zsh -lc "jq '.objects[] | {name, objectPolicy, columns: [.columns[] | {name, policy, capabilities}]}' .agents/skills/unleak/local/active-policies/retail_ops_pg.json"
+/bin/zsh -lc "jq '.tables[] | {name, columns: [.columns[].name]}' .agents/skills/unleak/local/schema/retail_ops_pg.schema.json"
+/bin/zsh -lc "jq '.tables[] | {name, columns: [.columns[].name]}' .agents/skills/unleak/local/schema/retail_ops_pg.schema.json"
+/bin/zsh -lc 'node .agents/skills/unleak/scripts/query.mjs --connection retail_ops_pg --sql "SELECT customer_name, customer_email, phone FROM customers LIMIT 5"'
+/bin/zsh -lc 'node .agents/skills/unleak/scripts/query.mjs --connection retail_ops_pg --sql "SELECT customer_name, customer_email, phone FROM customers LIMIT 5"'

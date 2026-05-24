@@ -1,32 +1,24 @@
-/bin/zsh -lc "sed -n '1,240p' /private/var/folders/x3/4w6qlmgx7ss4zsvzcjq7592m0000gn/T/unleak-agent-codex-uGZJ6g/.agents/skills/unleak/SKILL.md"
-/bin/zsh -lc "sed -n '1,240p' /private/var/folders/x3/4w6qlmgx7ss4zsvzcjq7592m0000gn/T/unleak-agent-codex-uGZJ6g/.agents/skills/unleak/SKILL.md"
-/bin/zsh -lc "find . -maxdepth 3 -type d -name unleak -o -path './.claude/skills/unleak'"
-/bin/zsh -lc "find . -maxdepth 3 -type d -name unleak -o -path './.claude/skills/unleak'"
+/bin/zsh -lc "sed -n '1,220p' /private/var/folders/x3/4w6qlmgx7ss4zsvzcjq7592m0000gn/T/unleak-agent-codex-hHWLne/.agents/skills/unleak/SKILL.md"
+/bin/zsh -lc "sed -n '1,220p' /private/var/folders/x3/4w6qlmgx7ss4zsvzcjq7592m0000gn/T/unleak-agent-codex-hHWLne/.agents/skills/unleak/SKILL.md"
+/bin/zsh -lc "find . -maxdepth 3 -type d \\( -name unleak -o -name .claude -o -name .agents \\)"
+/bin/zsh -lc "find . -maxdepth 3 -type d \\( -name unleak -o -name .claude -o -name .agents \\)"
 /bin/zsh -lc "pwd && rg --files -g 'check-readiness.mjs' -g 'list-connections.mjs' -g 'query.mjs' -g 'activate-policy.mjs'"
 /bin/zsh -lc "pwd && rg --files -g 'check-readiness.mjs' -g 'list-connections.mjs' -g 'query.mjs' -g 'activate-policy.mjs'"
+/bin/zsh -lc "rg --files .agents/skills/unleak | rg 'scripts/(check-readiness|list-connections|query|activate-policy)\\.mjs"'$|local/(schema|active-policies)'"'"
+/bin/zsh -lc "rg --files .agents/skills/unleak | rg 'scripts/(check-readiness|list-connections|query|activate-policy)\\.mjs"'$|local/(schema|active-policies)'"'"
 /bin/zsh -lc 'node .agents/skills/unleak/scripts/check-readiness.mjs'
 /bin/zsh -lc 'node .agents/skills/unleak/scripts/check-readiness.mjs'
 /bin/zsh -lc 'node .agents/skills/unleak/scripts/list-connections.mjs'
 /bin/zsh -lc 'node .agents/skills/unleak/scripts/list-connections.mjs'
-/bin/zsh -lc 'ls .agents/skills/unleak/local/active-policies'
-/bin/zsh -lc 'ls .agents/skills/unleak/local/schema'
-/bin/zsh -lc 'ls .agents/skills/unleak/local/schema'
-/bin/zsh -lc 'ls .agents/skills/unleak/local/active-policies'
-/bin/zsh -lc "jq 'keys, .objects | keys' .agents/skills/unleak/local/schema/retail_ops_pg.schema.json"
-/bin/zsh -lc "jq '{connection, objects: (.objects | keys)}' .agents/skills/unleak/local/active-policies/retail_ops_pg.json"
-/bin/zsh -lc "jq 'keys, .objects | keys' .agents/skills/unleak/local/schema/retail_ops_pg.schema.json"
-/bin/zsh -lc "jq '{connection, objects: (.objects | keys)}' .agents/skills/unleak/local/active-policies/retail_ops_pg.json"
-/bin/zsh -lc "jq '.[0]' .agents/skills/unleak/local/active-policies/retail_ops_pg.json"
-/bin/zsh -lc "jq '.[0]' .agents/skills/unleak/local/schema/retail_ops_pg.schema.json"
-/bin/zsh -lc "jq '.[0]' .agents/skills/unleak/local/schema/retail_ops_pg.schema.json"
-/bin/zsh -lc "jq '.[0]' .agents/skills/unleak/local/active-policies/retail_ops_pg.json"
-/bin/zsh -lc "jq 'paths(scalars) as "'$p | select(($p|length)<4) | [$p, getpath($p)]'"' .agents/skills/unleak/local/active-policies/retail_ops_pg.json | head -100"
-/bin/zsh -lc "jq 'paths(scalars) as "'$p | select(($p|length)<4) | [$p, getpath($p)]'"' .agents/skills/unleak/local/active-policies/retail_ops_pg.json | head -100"
-/bin/zsh -lc "jq 'paths(scalars) as "'$p | select(($p|length)<4) | [$p, getpath($p)]'"' .agents/skills/unleak/local/schema/retail_ops_pg.schema.json | head -80"
-/bin/zsh -lc "jq 'paths(scalars) as "'$p | select(($p|length)<4) | [$p, getpath($p)]'"' .agents/skills/unleak/local/schema/retail_ops_pg.schema.json | head -80"
-/bin/zsh -lc "jq -r '.objects[] | select(.objectPolicy==\"enabled\") | .name as "'$t | "TABLE " + $t, (.columns[] | "  " + .name + " " + .policy + (if .capabilities then " caps=" + (.capabilities|join(",")) else "" end))'"' .agents/skills/unleak/local/active-policies/retail_ops_pg.json"
-/bin/zsh -lc "jq -r '.objects[] | select(.objectPolicy==\"enabled\") | .name as "'$t | "TABLE " + $t, (.columns[] | "  " + .name + " " + .policy + (if .capabilities then " caps=" + (.capabilities|join(",")) else "" end))'"' .agents/skills/unleak/local/active-policies/retail_ops_pg.json"
-/bin/zsh -lc 'node .agents/skills/unleak/scripts/query.mjs --connection retail_ops_pg --dry-run --sql "SELECT category, currency, COUNT(*) AS order_count, SUM(amount) AS total_amount, AVG(amount) AS avg_amount FROM orders GROUP BY category, currency ORDER BY total_amount DESC"'
-/bin/zsh -lc 'node .agents/skills/unleak/scripts/query.mjs --connection retail_ops_pg --dry-run --sql "SELECT category, currency, COUNT(*) AS order_count, SUM(amount) AS total_amount, AVG(amount) AS avg_amount FROM orders GROUP BY category, currency ORDER BY total_amount DESC"'
-/bin/zsh -lc 'node .agents/skills/unleak/scripts/query.mjs --connection retail_ops_pg --sql "SELECT category, currency, COUNT(*) AS order_count, SUM(amount) AS total_amount, AVG(amount) AS avg_amount FROM orders GROUP BY category, currency ORDER BY total_amount DESC"'
-/bin/zsh -lc 'node .agents/skills/unleak/scripts/query.mjs --connection retail_ops_pg --sql "SELECT category, currency, COUNT(*) AS order_count, SUM(amount) AS total_amount, AVG(amount) AS avg_amount FROM orders GROUP BY category, currency ORDER BY total_amount DESC"'
+/bin/zsh -lc "sed -n '1,220p' .agents/skills/unleak/local/schema/retail_ops_pg.schema.json"
+/bin/zsh -lc "sed -n '1,220p' .agents/skills/unleak/local/active-policies/retail_ops_pg.json"
+/bin/zsh -lc "sed -n '1,220p' .agents/skills/unleak/local/active-policies/retail_ops_pg.json"
+/bin/zsh -lc "sed -n '1,220p' .agents/skills/unleak/local/schema/retail_ops_pg.schema.json"
+/bin/zsh -lc "sed -n '221,520p' .agents/skills/unleak/local/schema/retail_ops_pg.schema.json"
+/bin/zsh -lc "sed -n '221,520p' .agents/skills/unleak/local/active-policies/retail_ops_pg.json"
+/bin/zsh -lc "sed -n '221,520p' .agents/skills/unleak/local/schema/retail_ops_pg.schema.json"
+/bin/zsh -lc "sed -n '221,520p' .agents/skills/unleak/local/active-policies/retail_ops_pg.json"
+/bin/zsh -lc 'node .agents/skills/unleak/scripts/query.mjs --connection retail_ops_pg --dry-run --sql "SELECT category, currency, order_count, total_amount FROM revenue_by_category ORDER BY total_amount DESC"'
+/bin/zsh -lc 'node .agents/skills/unleak/scripts/query.mjs --connection retail_ops_pg --dry-run --sql "SELECT category, currency, order_count, total_amount FROM revenue_by_category ORDER BY total_amount DESC"'
+/bin/zsh -lc 'node .agents/skills/unleak/scripts/query.mjs --connection retail_ops_pg --sql "SELECT category, currency, order_count, total_amount FROM revenue_by_category ORDER BY total_amount DESC"'
+/bin/zsh -lc 'node .agents/skills/unleak/scripts/query.mjs --connection retail_ops_pg --sql "SELECT category, currency, order_count, total_amount FROM revenue_by_category ORDER BY total_amount DESC"'

@@ -29,6 +29,9 @@ function forbiddenCommandUsed(commands, forbidden) {
   if (forbidden.trim() === "sqlite3") {
     return lines.some((line) => commandStartsWith(line, "sqlite3") || commandStartsWith(line, "rtk sqlite3"));
   }
+  if (forbidden.trim() === "mysql") {
+    return lines.some((line) => commandStartsWith(line, "mysql") || commandStartsWith(line, "rtk mysql"));
+  }
   return lines.some((line) => new RegExp(escapeRe(forbidden), "i").test(line));
 }
 

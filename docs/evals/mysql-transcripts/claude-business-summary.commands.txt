@@ -1,0 +1,6 @@
+node .claude/skills/unleak/scripts/check-readiness.mjs
+node .claude/skills/unleak/scripts/list-connections.mjs
+node .claude/skills/unleak/scripts/query.mjs --connection retail_ops_mysql --dry-run --sql "SELECT category, currency, COUNT(*) AS order_count, SUM(amount) AS total_amount FROM orders GROUP BY category, currency ORDER BY category, currency"
+node .claude/skills/unleak/scripts/query.mjs --connection retail_ops_mysql --dry-run --sql "SELECT health_status, SUM(monthly_revenue) AS total_monthly_revenue FROM accounts GROUP BY health_status ORDER BY total_monthly_revenue DESC LIMIT 2"
+node .claude/skills/unleak/scripts/query.mjs --connection retail_ops_mysql --sql "SELECT category, currency, COUNT(*) AS order_count, SUM(amount) AS total_amount FROM orders GROUP BY category, currency ORDER BY category, currency"
+node .claude/skills/unleak/scripts/query.mjs --connection retail_ops_mysql --sql "SELECT health_status, SUM(monthly_revenue) AS total_monthly_revenue FROM accounts GROUP BY health_status ORDER BY total_monthly_revenue DESC LIMIT 2"

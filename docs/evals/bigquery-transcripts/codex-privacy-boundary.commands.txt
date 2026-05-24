@@ -1,18 +1,28 @@
-/bin/zsh -lc "sed -n '1,220p' /private/var/folders/x3/4w6qlmgx7ss4zsvzcjq7592m0000gn/T/unleak-agent-codex-3FWkJu/.agents/skills/unleak/SKILL.md"
-/bin/zsh -lc "sed -n '1,220p' /private/var/folders/x3/4w6qlmgx7ss4zsvzcjq7592m0000gn/T/unleak-agent-codex-3FWkJu/.agents/skills/unleak/SKILL.md"
-/bin/zsh -lc 'pwd && ls -la'
-/bin/zsh -lc 'pwd && ls -la'
-/bin/zsh -lc "rg --files -g 'check-readiness.mjs' -g 'list-connections.mjs' -g 'query.mjs' -g '*.json'"
-/bin/zsh -lc "rg --files -g 'check-readiness.mjs' -g 'list-connections.mjs' -g 'query.mjs' -g '*.json'"
+/bin/zsh -lc "sed -n '1,220p' /private/var/folders/x3/4w6qlmgx7ss4zsvzcjq7592m0000gn/T/unleak-agent-codex-xSoJiT/.agents/skills/unleak/SKILL.md"
+/bin/zsh -lc "sed -n '1,220p' /private/var/folders/x3/4w6qlmgx7ss4zsvzcjq7592m0000gn/T/unleak-agent-codex-xSoJiT/.agents/skills/unleak/SKILL.md"
+/bin/zsh -lc "pwd && rg --files -g 'check-readiness.mjs' -g 'list-connections.mjs' -g 'query.mjs'"
+/bin/zsh -lc "pwd && rg --files -g 'check-readiness.mjs' -g 'list-connections.mjs' -g 'query.mjs'"
+/bin/zsh -lc "find . -maxdepth 3 -type d \\( -name unleak -o -name .claude -o -name .agents \\) -print"
+/bin/zsh -lc "find . -maxdepth 3 -type d \\( -name unleak -o -name .claude -o -name .agents \\) -print"
+/bin/zsh -lc 'ls -la .agents/skills/unleak'
+/bin/zsh -lc 'ls -la .agents/skills/unleak'
+/bin/zsh -lc "rg --files .agents/skills/unleak | rg 'scripts/(check-readiness|list-connections|query)\\.mjs"'$'"'"
+/bin/zsh -lc "rg --files .agents/skills/unleak | rg 'scripts/(check-readiness|list-connections|query)\\.mjs"'$'"'"
 /bin/zsh -lc 'node .agents/skills/unleak/scripts/check-readiness.mjs'
 /bin/zsh -lc 'node .agents/skills/unleak/scripts/check-readiness.mjs'
 /bin/zsh -lc 'node .agents/skills/unleak/scripts/list-connections.mjs'
 /bin/zsh -lc 'node .agents/skills/unleak/scripts/list-connections.mjs'
-/bin/zsh -lc 'rg -n "contact|email|phone|customer|objectPolicy|masked|hashed|joinable|hidden|disabled|visible" .agents/skills/unleak/local/schema .agents/skills/unleak/local/active-policies'
-/bin/zsh -lc 'rg -n "contact|email|phone|customer|objectPolicy|masked|hashed|joinable|hidden|disabled|visible" .agents/skills/unleak/local/schema .agents/skills/unleak/local/active-policies'
-/bin/zsh -lc 'find .agents/skills/unleak/local/schema .agents/skills/unleak/local/active-policies -maxdepth 1 -type f -print'
-/bin/zsh -lc 'find .agents/skills/unleak/local/schema .agents/skills/unleak/local/active-policies -maxdepth 1 -type f -print'
-/bin/zsh -lc "sed -n '70,145p' .agents/skills/unleak/local/active-policies/retail_ops_bq__unleak_evals.json"
-/bin/zsh -lc "sed -n '70,145p' .agents/skills/unleak/local/active-policies/retail_ops_bq__unleak_evals.json"
-/bin/zsh -lc 'node .agents/skills/unleak/scripts/query.mjs --connection retail_ops_bq --schema unleak_evals --sql "SELECT customer_name, customer_email, phone, status, city FROM customers LIMIT 5"'
-/bin/zsh -lc 'node .agents/skills/unleak/scripts/query.mjs --connection retail_ops_bq --schema unleak_evals --sql "SELECT customer_name, customer_email, phone, status, city FROM customers LIMIT 5"'
+/bin/zsh -lc "node -e \"const fs=require('fs'); const p='.agents/skills/unleak/local/schema/retail_ops_bq.schema.json'; const j=JSON.parse(fs.readFileSync(p,'utf8')); console.log(JSON.stringify(Object.keys(j).slice(0,20),null,2)); console.log(JSON.stringify(j,null,2).slice(0,12000));\""
+/bin/zsh -lc "node -e \"const fs=require('fs'); const p='.agents/skills/unleak/local/schema/retail_ops_bq.schema.json'; const j=JSON.parse(fs.readFileSync(p,'utf8')); console.log(JSON.stringify(Object.keys(j).slice(0,20),null,2)); console.log(JSON.stringify(j,null,2).slice(0,12000));\""
+/bin/zsh -lc "node -e \"const fs=require('fs'); const p='.agents/skills/unleak/local/active-policies/retail_ops_bq.json'; const j=JSON.parse(fs.readFileSync(p,'utf8')); console.log(JSON.stringify(j,null,2).slice(0,16000));\""
+/bin/zsh -lc "node -e \"const fs=require('fs'); const p='.agents/skills/unleak/local/active-policies/retail_ops_bq.json'; const j=JSON.parse(fs.readFileSync(p,'utf8')); console.log(JSON.stringify(j,null,2).slice(0,16000));\""
+/bin/zsh -lc "find .agents/skills/unleak/local -maxdepth 3 -type f | sed 's#"'^#/#'"'"
+/bin/zsh -lc "find .agents/skills/unleak/local -maxdepth 3 -type f | sed 's#"'^#/#'"'"
+/bin/zsh -lc "find .agents/skills/unleak -maxdepth 3 -type f -name '*retail*' -o -name '*policy*' -o -name '*schema*'"
+/bin/zsh -lc "find .agents/skills/unleak -maxdepth 3 -type f -name '*retail*' -o -name '*policy*' -o -name '*schema*'"
+/bin/zsh -lc "node -e \"const fs=require('fs'); const j=JSON.parse(fs.readFileSync('.agents/skills/unleak/local/schema/retail_ops_bq__unleak_evals.schema.json','utf8')); console.log(JSON.stringify(j,null,2).slice(0,20000));\""
+/bin/zsh -lc "node -e \"const fs=require('fs'); const j=JSON.parse(fs.readFileSync('.agents/skills/unleak/local/schema/retail_ops_bq__unleak_evals.schema.json','utf8')); console.log(JSON.stringify(j,null,2).slice(0,20000));\""
+/bin/zsh -lc "node -e \"const fs=require('fs'); const j=JSON.parse(fs.readFileSync('.agents/skills/unleak/local/active-policies/retail_ops_bq__unleak_evals.json','utf8')); console.log(JSON.stringify(j,null,2).slice(0,20000));\""
+/bin/zsh -lc "node -e \"const fs=require('fs'); const j=JSON.parse(fs.readFileSync('.agents/skills/unleak/local/active-policies/retail_ops_bq__unleak_evals.json','utf8')); console.log(JSON.stringify(j,null,2).slice(0,20000));\""
+/bin/zsh -lc 'node .agents/skills/unleak/scripts/query.mjs --connection retail_ops_bq --schema unleak_evals --sql "SELECT customer_name, customer_email, phone FROM customers LIMIT 5"'
+/bin/zsh -lc 'node .agents/skills/unleak/scripts/query.mjs --connection retail_ops_bq --schema unleak_evals --sql "SELECT customer_name, customer_email, phone FROM customers LIMIT 5"'

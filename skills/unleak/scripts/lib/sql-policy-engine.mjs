@@ -31,12 +31,12 @@ export function validateAndPlan(sql, schema, policy, options = {}) {
   const { sqlWithoutCtes, ctes } = extractCtes(cleanSql, schema, policy, options);
   const { contextSql, subqueries } = extractFromSubqueries(sqlWithoutCtes, schema, policy, options);
   for (const [name, subquery] of subqueries) ctes.set(name, subquery);
-  const ctx = buildContext(contextSql, schema, policy, ctes);
+  const ctx = buildContext(contextSql, schema, policy, ctes, options);
   validateForbiddenObjectMentions(cleanSql, ctx);
   validateClauses(contextSql, ctx);
   validateJoins(contextSql, ctx);
   const selectList = extractSelectList(contextSql);
-  const planned = planSelectList(selectList, ctx);
+  const planned = planSelectList(selectList, ctx, options);
   if (isDistinctSelect(contextSql) && planned.transforms.some((transform) => transform.sourcePolicy !== "visible")) {
     throw new SafeError("SQL_PROTECTED_COLUMN_IN_DISTINCT");
   }
@@ -115,7 +115,7 @@ function escapeBacktick(value) {
   return String(value).replaceAll("`", "``");
 }
 
-function buildContext(sql, schema, policy, ctes = new Map()) {
+function buildContext(sql, schema, policy, ctes = new Map(), options = {}) {
   const objects = new Map(schema.objects.map((object) => [object.name, object]));
   const policies = policyIndex(policy);
   for (const [name, cte] of ctes) {
@@ -135,7 +135,7 @@ function buildContext(sql, schema, policy, ctes = new Map()) {
     aliases.set(table, { alias: table, sqlAlias: alias, object, policy: objectPolicy });
   }
   if (aliases.size === 0) throw new SafeError("SQL_UNKNOWN_OBJECT");
-  return { schema, policy, aliases, objects, policies, multiObject: new Set([...aliases.values()].map((item) => item.object.name)).size > 1 };
+  return { schema, policy, aliases, objects, policies, dialect: options.dialect, multiObject: new Set([...aliases.values()].map((item) => item.object.name)).size > 1 };
 }
 
 function validateForbiddenObjectMentions(sql, ctx) {
@@ -221,7 +221,7 @@ function validateJoins(sql, ctx) {
   }
 }
 
-function planSelectList(selectList, ctx) {
+function planSelectList(selectList, ctx, options = {}) {
   const outputColumns = [];
   const sqlItems = [];
   const transforms = [];
@@ -231,7 +231,7 @@ function planSelectList(selectList, ctx) {
     const trimmed = item.trim();
     if (trimmed === "*") {
       for (const { object, policy, alias } of uniqueAliasObjects(ctx)) {
-      addStarColumns({ object, policy, sqlAlias: alias, outputAlias: ctx.multiObject ? alias : null, outputColumns, sqlItems, transforms, columnsRemoved, names });
+      addStarColumns({ object, policy, sqlAlias: alias, outputAlias: ctx.multiObject ? alias : null, outputColumns, sqlItems, transforms, columnsRemoved, names, dialect: ctx.dialect });
       }
       continue;
     }
@@ -239,7 +239,7 @@ function planSelectList(selectList, ctx) {
     if (star) {
       const entry = ctx.aliases.get(star[1]);
       if (!entry) throw new SafeError("SQL_UNKNOWN_OBJECT");
-      addStarColumns({ object: entry.object, policy: entry.policy, sqlAlias: entry.sqlAlias, outputAlias: ctx.multiObject ? star[1] : null, outputColumns, sqlItems, transforms, columnsRemoved, names });
+      addStarColumns({ object: entry.object, policy: entry.policy, sqlAlias: entry.sqlAlias, outputAlias: ctx.multiObject ? star[1] : null, outputColumns, sqlItems, transforms, columnsRemoved, names, dialect: ctx.dialect });
       continue;
     }
     const alias = explicitAlias(trimmed);
@@ -250,7 +250,7 @@ function planSelectList(selectList, ctx) {
       const outName = alias?.name || direct.column.name;
       addName(names, outName);
       outputColumns.push(outName);
-      sqlItems.push(`${direct.sql} AS "${escapeIdent(outName)}"`);
+      sqlItems.push(`${direct.sql} AS ${quoteIdent(outName, options.dialect)}`);
       transforms.push(transformFor(outName, direct.policy, direct.policyEntry));
       continue;
     }
@@ -264,7 +264,7 @@ function planSelectList(selectList, ctx) {
     }
     addName(names, alias.name);
     outputColumns.push(alias.name);
-    sqlItems.push(`${expression} AS "${escapeIdent(alias.name)}"`);
+    sqlItems.push(`${expression} AS ${quoteIdent(alias.name, options.dialect)}`);
     transforms.push({ column: alias.name, type: "visible", sourcePolicy: "visible" });
   }
   return { outputColumns, sqlItems, transforms, columnsRemoved };
@@ -279,7 +279,7 @@ function expressionCapabilities(expression) {
   return capabilities;
 }
 
-function addStarColumns({ object, policy, sqlAlias, outputAlias, outputColumns, sqlItems, transforms, columnsRemoved, names }) {
+function addStarColumns({ object, policy, sqlAlias, outputAlias, outputColumns, sqlItems, transforms, columnsRemoved, names, dialect = undefined }) {
   for (const column of object.columns) {
     const policyEntry = policy.columnsByName.get(column.name);
     if (policyEntry.policy === "hidden") {
@@ -289,7 +289,7 @@ function addStarColumns({ object, policy, sqlAlias, outputAlias, outputColumns, 
     const outName = outputAlias ? `${outputAlias}.${column.name}` : column.name;
     addName(names, outName);
     outputColumns.push(outName);
-    sqlItems.push(`"${escapeIdent(sqlAlias || object.name)}"."${escapeIdent(column.name)}" AS "${escapeIdent(outName)}"`);
+    sqlItems.push(`${quoteIdent(sqlAlias || object.name, dialect)}.${quoteIdent(column.name, dialect)} AS ${quoteIdent(outName, dialect)}`);
     transforms.push(transformFor(outName, policyEntry.policy, policyEntry));
   }
 }
@@ -315,7 +315,7 @@ function resolveRef(ref, ctx) {
   const column = entry.object.columns.find((item) => item.name === columnName);
   const policyEntry = entry.policy.columnsByName.get(columnName);
   if (!column || !policyEntry) throw new SafeError("SQL_UNKNOWN_COLUMN");
-  return { object: entry.object, column, policy: policyEntry.policy, policyEntry, sql: `"${escapeIdent(entry.sqlAlias)}"."${escapeIdent(column.name)}"` };
+  return { object: entry.object, column, policy: policyEntry.policy, policyEntry, sql: `${quoteIdent(entry.sqlAlias, ctx.dialect)}.${quoteIdent(column.name, ctx.dialect)}` };
 }
 
 function resolveBareColumn(columnName, ctx) {
@@ -608,6 +608,11 @@ function wordBoundary(text, idx) {
 
 function escapeIdent(value) {
   return String(value).replaceAll('"', '""');
+}
+
+function quoteIdent(value, dialect = undefined) {
+  if (dialect === "mysql") return `\`${String(value).replaceAll("`", "``")}\``;
+  return `"${escapeIdent(value)}"`;
 }
 
 function escapeRe(value) {

@@ -66,6 +66,7 @@ bun run test:agent:fixture
 bun run test:agent:preflight
 bun run eval:sqlite:report
 bun run eval:postgres:report
+bun run eval:mysql:report
 bun run eval:bigquery:report
 bun run test:postgres
 bun run test:postgres:active
@@ -73,19 +74,20 @@ bun run test:postgres:active
 
 The default test run skips local Postgres integration. Use `bun run test:postgres` when local Postgres is available. After manually activating `sales_pg`, use `bun run test:postgres:active` to prove the active policy masks, hashes, omits hidden fields, and rejects protected filters and disabled objects. The tests cover config safety, settings merge, schema backups, policy validation, proposal overwrite protection, query output gates, masking, hashing, hidden-column omission, joinable joins, CTE passthrough, FROM subquery passthrough, and UNION policy matching.
 
-Agent evals use a richer retail dataset in a temporary project and install the skill under `.claude/skills/unleak` or `.agents/skills/unleak`. The fixture gate proves the dataset, schema, and active policy are valid without calling an external agent. The SQLite fixture uses `retail_ops`; the Postgres fixture uses the same rows at `postgres@localhost:5432/unleak-evals` through `retail_ops_pg`; the BigQuery fixture uses the same rows in dataset `unleak_evals` through `retail_ops_bq`. Real agent runs are explicit:
+Agent evals use a richer retail dataset in a temporary project and install the skill under `.claude/skills/unleak` or `.agents/skills/unleak`. The fixture gate proves the dataset, schema, and active policy are valid without calling an external agent. The SQLite fixture uses `retail_ops`; the Postgres fixture uses the same rows at `postgres@localhost:5432/unleak-evals` through `retail_ops_pg`; the MySQL fixture uses the same rows at `root@localhost:3306/unleak-evals` through `retail_ops_mysql`; the BigQuery fixture uses the same rows in dataset `unleak_evals` through `retail_ops_bq`. Real agent runs are explicit:
 
 ```bash
 bun run test:agent:claude
 bun run test:agent:codex
 bun run test:agent:sqlite
 bun run test:agent:postgres
+bun run test:agent:mysql
 bun run test:agent:bigquery
 ```
 
 `bun run test:agent:preflight` checks whether Claude and Codex are authenticated and reachable before running model-backed evals. Failures are written under `test/agent-evals/failures/` with the prompt, JSONL transcript, extracted commands, and diagnosis. The evals assert that agents use Unleak scripts, avoid raw database CLIs, do not run policy activation, and do not leak seeded raw emails, national IDs, addresses, notes, API keys, session tokens, or payment markers.
 
-`bun run eval:sqlite:report` runs the real Claude and Codex SQLite evals and writes the public report to `../../docs/evals/sqlite-agent-evals.md`, with structured JSON and transcript snapshots beside it. `bun run eval:postgres:report` runs the same eval suite against Postgres and writes `../../docs/evals/postgres-agent-evals.md`. `bun run eval:bigquery:report` runs the BigQuery eval suite and writes `../../docs/evals/bigquery-agent-evals.md`.
+`bun run eval:sqlite:report` runs the real Claude and Codex SQLite evals and writes the public report to `../../docs/evals/sqlite-agent-evals.md`, with structured JSON and transcript snapshots beside it. `bun run eval:postgres:report` runs the same eval suite against Postgres and writes `../../docs/evals/postgres-agent-evals.md`. `bun run eval:mysql:report` runs the MySQL eval suite and writes `../../docs/evals/mysql-agent-evals.md`. `bun run eval:bigquery:report` runs the BigQuery eval suite and writes `../../docs/evals/bigquery-agent-evals.md`.
 
 ## Current SQL Scope
 

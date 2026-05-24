@@ -1,0 +1,3 @@
+node .claude/skills/unleak/scripts/check-readiness.mjs 2>&1
+node .claude/skills/unleak/scripts/list-connections.mjs 2>&1
+node .claude/skills/unleak/scripts/query.mjs --connection retail_ops_mysql --sql "SELECT id, customer_name, customer_email, phone, status, city, country FROM customers LIMIT 8" 2>&1

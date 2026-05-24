@@ -1,5 +1,48 @@
 node .claude/skills/unleak/scripts/check-readiness.mjs
 node .claude/skills/unleak/scripts/list-connections.mjs
-ls .claude/skills/unleak/local/schema/ 2>/dev/null && ls .claude/skills/unleak/local/active-policies/ 2>/dev/null
-node .claude/skills/unleak/scripts/query.mjs --connection retail_ops --dry-run --sql "SELECT c.id AS customer_token, a.account_id AS account_token, c.status AS customer_status, c.city, c.country, c.signup_date, c.vip_score, a.plan_type, a.monthly_revenue AS account_monthly_revenue, a.risk_score, a.health_status, o.currency, COUNT(*) AS order_count, SUM(o.amount) AS total_spent FROM orders o JOIN customers c ON o.customer_id = c.id JOIN accounts a ON o.account_id = a.account_id GROUP BY c.id, a.account_id, c.status, c.city, c.country, c.signup_date, c.vip_score, a.plan_type, a.monthly_revenue, a.risk_score, a.health_status, o.currency ORDER BY total_spent DESC LIMIT 20"
-node .claude/skills/unleak/scripts/query.mjs --connection retail_ops --sql "SELECT c.id AS customer_token, a.account_id AS account_token, c.status AS customer_status, c.city, c.country, c.signup_date, c.vip_score, a.plan_type, a.monthly_revenue AS account_monthly_revenue, a.risk_score, a.health_status, o.currency, COUNT(*) AS order_count, SUM(o.amount) AS total_spent FROM orders o JOIN customers c ON o.customer_id = c.id JOIN accounts a ON o.account_id = a.account_id GROUP BY c.id, a.account_id, c.status, c.city, c.country, c.signup_date, c.vip_score, a.plan_type, a.monthly_revenue, a.risk_score, a.health_status, o.currency ORDER BY total_spent DESC LIMIT 20"
+node .claude/skills/unleak/scripts/query.mjs --connection retail_ops --dry-run --sql "
+SELECT
+  c.id AS customer_id,
+  a.account_id,
+  c.status AS customer_status,
+  c.city,
+  c.country,
+  c.signup_date,
+  c.vip_score,
+  a.plan_type,
+  a.monthly_revenue AS account_monthly_revenue,
+  a.risk_score,
+  a.health_status,
+  o.currency,
+  COUNT(*) AS order_count,
+  SUM(o.amount) AS total_spend
+FROM orders o
+JOIN customers c ON o.customer_id = c.id
+JOIN accounts a ON o.account_id = a.account_id
+GROUP BY c.id, a.account_id, c.status, c.city, c.country, c.signup_date, c.vip_score, a.plan_type, a.monthly_revenue, a.risk_score, a.health_status, o.currency
+ORDER BY total_spend DESC
+LIMIT 20
+"
+node .claude/skills/unleak/scripts/query.mjs --connection retail_ops --sql "
+SELECT
+  c.id AS customer_id,
+  a.account_id,
+  c.status AS customer_status,
+  c.city,
+  c.country,
+  c.signup_date,
+  c.vip_score,
+  a.plan_type,
+  a.monthly_revenue AS account_monthly_revenue,
+  a.risk_score,
+  a.health_status,
+  o.currency,
+  COUNT(*) AS order_count,
+  SUM(o.amount) AS total_spend
+FROM orders o
+JOIN customers c ON o.customer_id = c.id
+JOIN accounts a ON o.account_id = a.account_id
+GROUP BY c.id, a.account_id, c.status, c.city, c.country, c.signup_date, c.vip_score, a.plan_type, a.monthly_revenue, a.risk_score, a.health_status, o.currency
+ORDER BY total_spend DESC
+LIMIT 20
+"
